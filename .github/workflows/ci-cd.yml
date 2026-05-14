@@ -48,6 +48,9 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/ecoeats-frontend:latest
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://ecoeat.pulseverse.shop/api
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
 
   deploy:
     needs: build-docker
