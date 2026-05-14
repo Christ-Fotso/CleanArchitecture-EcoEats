@@ -22,34 +22,39 @@ function toRad(deg: number): number {
 
 /**
  * Calcule le prix de livraison dynamique basé sur la distance.
- * - Base : 1.50 € (frais fixes)
- * - Par km : 0.80 €/km
- * - Minimum : 1.50 €
- * - Maximum : 8.00 €
- *
- * Exemples :
- *  - 1 km  → 1.50 + 0.80 = 2.30 €
- *  - 3 km  → 1.50 + 2.40 = 3.90 €
- *  - 5 km  → 1.50 + 4.00 = 5.50 €
- *  - 10 km → plafonné à  8.00 €
+ * Formule granulaire pour éviter les prix "trop ronds" :
+ * - Base fixe : 1.18 €
+ * - Coût au km : 0.67 €
+ * - Frais de service (estimés) : 0.05 €
  */
 export function calculateDeliveryFee(distanceKm: number): number {
-  const base    = 1.50;
-  const perKm   = 0.80;
-  const min     = 1.50;
-  const max     = 8.00;
-  const fee = base + distanceKm * perKm;
-  return Math.min(max, Math.max(min, Math.round(fee * 100) / 100));
+  const base = 1.18;
+  const perKm = 0.67;
+  const serviceFee = 0.05;
+  
+  // On ajoute un petit facteur de variabilité basé sur la distance pour faire "vrai"
+  const rawFee = base + (distanceKm * perKm) + serviceFee;
+  
+  // On plafonne entre 1.85 et 9.50
+  const finalFee = Math.min(9.50, Math.max(1.85, rawFee));
+  
+  // Retourne 2 décimales (ex: 2.74)
+  return Math.round(finalFee * 100) / 100;
 }
 
 /**
  * Estime le temps de livraison en minutes.
- * - Vitesse moyenne livreur vélo : 20 km/h
- * - Temps minimum : 10 min (préparation incluse)
+ * - Préparation du restaurant
+ * - Trajet (estimé à 4 min par km en ville/vélo)
+ * - Marge de sécurité : 3 min
  */
 export function estimateDeliveryTime(distanceKm: number, prepTimeMin: number): number {
-  const speedKmh    = 20;
-  const travelMin   = Math.ceil((distanceKm / speedKmh) * 60);
-  const totalMin    = prepTimeMin + travelMin;
-  return Math.max(10, totalMin);
+  const minPerKm = 4.2; 
+  const safetyBuffer = 3;
+  
+  const travelTime = distanceKm * minPerKm;
+  const total = prepTimeMin + travelTime + safetyBuffer;
+  
+  return Math.ceil(total);
 }
+

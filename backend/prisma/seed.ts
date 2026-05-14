@@ -9,7 +9,17 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  console.log("🌱 Seeding EcoEats (mode idempotent - aucun doublon possible)...");
+  console.log("🌱 Seeding EcoEats (mode propre - nettoyage des anciens seeds)...");
+
+  // Nettoyage ciblé des restaurants de seed pour éviter les doublons sans menus
+  const seedRestoIds = [
+    "seed-resto-bistrot", "seed-resto-sushi", "seed-resto-mahmoud", 
+    "seed-resto-pizza", "seed-resto-ramen"
+  ];
+
+  await prisma.menuItem.deleteMany({ where: { category: { restaurant_id: { in: seedRestoIds } } } });
+  await prisma.menuCategory.deleteMany({ where: { restaurant_id: { in: seedRestoIds } } });
+  await prisma.restaurant.deleteMany({ where: { id: { in: seedRestoIds } } });
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
 
@@ -38,14 +48,16 @@ async function main() {
   // ─────────────────────────────────────────────
   // Helper : seed menu uniquement si vide
   // ─────────────────────────────────────────────
-  const seedMenuIfEmpty = async (restaurantId: string, seedFn: () => Promise<void>) => {
+  const seedMenuIfEmpty = async (restaurantId: string, restaurantName: string, seedFn: () => Promise<void>) => {
     const existing = await prisma.menuCategory.count({ where: { restaurant_id: restaurantId } });
     if (existing === 0) {
+      console.log(`   🌱 Insertion du menu pour : ${restaurantName}...`);
       await seedFn();
     } else {
-      console.log(`   ↳ Menu déjà présent pour ce restaurant, skip.`);
+      console.log(`   ✅ Menu déjà présent pour ${restaurantName} (${existing} catégories).`);
     }
   };
+
 
   // ─────────────────────────────────────────────
   // Utilisateurs
@@ -60,18 +72,14 @@ async function main() {
   const owner5  = await upsertUser("kenji.tanaka@ecoeats.fr","Kenji Tanaka",      "RESTAURANT_OWNER", "0145678905");
 
   // ─────────────────────────────────────────────
-  // Helper : trouve ou crée un restaurant par nom
-  // Puis ajoute le menu s'il n'en a pas encore
+  // Helper : trouve ou crée un restaurant par ID fixe
   // ─────────────────────────────────────────────
-  const upsertRestaurant = async (name: string, createData: any) => {
-    let resto = await prisma.restaurant.findFirst({ where: { name } });
-    if (!resto) {
-      resto = await prisma.restaurant.create({ data: { name, ...createData } });
-      console.log(`   → Créé : ${name}`);
-    } else {
-      console.log(`   → Existant : ${name}`);
-    }
-    return resto;
+  const upsertRestaurant = async (id: string, name: string, createData: any) => {
+    return prisma.restaurant.upsert({
+      where:  { id },
+      update: { name, ...createData },
+      create: { id, name, ...createData },
+    });
   };
 
   const hours = {
@@ -84,12 +92,12 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 1 - Le Bistrot Parisien (Montmartre)
   // ─────────────────────────────────────────────
-  const resto1 = await upsertRestaurant("Le Bistrot Parisien", {
+  const resto1 = await upsertRestaurant("seed-resto-bistrot", "Le Bistrot Parisien", {
     owner_id: owner1.id, description: "Cuisine française traditionnelle au cœur de Montmartre.",
     address: "12 Rue Lepic, 75018 Paris", lat: 48.8865, lng: 2.3360,
     is_active: true, cuisine_type: "Française", prep_time_min: 25, delivery_fee: 2.50, opening_hours: hours,
   });
-  await seedMenuIfEmpty(resto1.id, async () => {
+  await seedMenuIfEmpty(resto1.id, "Le Bistrot Parisien", async () => {
     const e = await prisma.menuCategory.create({ data: { restaurant_id: resto1.id, name: "Entrées",  position: 1, availability: "always" } });
     const p = await prisma.menuCategory.create({ data: { restaurant_id: resto1.id, name: "Plats",    position: 2, availability: "always" } });
     const d = await prisma.menuCategory.create({ data: { restaurant_id: resto1.id, name: "Desserts", position: 3, availability: "always" } });
@@ -108,12 +116,12 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 2 - Sushi Sakura (Opéra)
   // ─────────────────────────────────────────────
-  const resto2 = await upsertRestaurant("Sushi Sakura", {
+  const resto2 = await upsertRestaurant("seed-resto-sushi", "Sushi Sakura", {
     owner_id: owner2.id, description: "Authentique cuisine japonaise près de l'Opéra. Sushis préparés à la minute.",
     address: "8 Rue de la Paix, 75002 Paris", lat: 48.8698, lng: 2.3310,
     is_active: true, cuisine_type: "Japonaise", prep_time_min: 20, delivery_fee: 3.00, opening_hours: hours,
   });
-  await seedMenuIfEmpty(resto2.id, async () => {
+  await seedMenuIfEmpty(resto2.id, "Sushi Sakura", async () => {
     const s = await prisma.menuCategory.create({ data: { restaurant_id: resto2.id, name: "Sushis & Makis", position: 1, availability: "always" } });
     const c = await prisma.menuCategory.create({ data: { restaurant_id: resto2.id, name: "Plats chauds",   position: 2, availability: "always" } });
     const d = await prisma.menuCategory.create({ data: { restaurant_id: resto2.id, name: "Desserts",       position: 3, availability: "always" } });
@@ -131,18 +139,12 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 3 - Chez Mahmoud (Le Marais)
   // ─────────────────────────────────────────────
-  const resto3 = await prisma.restaurant.upsert({
-    where:  { id: "seed-resto-mahmoud" },
-    update: {},
-    create: {
-      id: "seed-resto-mahmoud", owner_id: owner3.id,
-      name: "Chez Mahmoud", description: "Cuisine libanaise généreuse dans le Marais. Mezze, shawarma et falafel faits maison.",
-      address: "45 Rue de Bretagne, 75003 Paris", lat: 48.8623, lng: 2.3601,
-      is_active: true, cuisine_type: "Libanaise", prep_time_min: 15,
-      delivery_fee: 2.00, opening_hours: hours,
-    },
+  const resto3 = await upsertRestaurant("seed-resto-mahmoud", "Chez Mahmoud", {
+    owner_id: owner3.id, description: "Cuisine libanaise généreuse dans le Marais. Mezze, shawarma et falafel faits maison.",
+    address: "45 Rue de Bretagne, 75003 Paris", lat: 48.8623, lng: 2.3601,
+    is_active: true, cuisine_type: "Libanaise", prep_time_min: 15, delivery_fee: 2.00, opening_hours: hours,
   });
-  await seedMenuIfEmpty(resto3.id, async () => {
+  await seedMenuIfEmpty(resto3.id, "Chez Mahmoud", async () => {
     const m = await prisma.menuCategory.create({ data: { restaurant_id: resto3.id, name: "Mezze",     position: 1, availability: "always" } });
     const g = await prisma.menuCategory.create({ data: { restaurant_id: resto3.id, name: "Grillades", position: 2, availability: "always" } });
     const s = await prisma.menuCategory.create({ data: { restaurant_id: resto3.id, name: "Sandwichs", position: 3, availability: "always" } });
@@ -161,12 +163,12 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 4 - La Pizzeria Roma (Mouffetard)
   // ─────────────────────────────────────────────
-  const resto4 = await upsertRestaurant("La Pizzeria Roma", {
+  const resto4 = await upsertRestaurant("seed-resto-pizza", "La Pizzeria Roma", {
     owner_id: owner4.id, description: "Pizzas napolitaines cuites au feu de bois. Pâte à la farine italienne importée.",
     address: "22 Rue Mouffetard, 75005 Paris", lat: 48.8428, lng: 2.3507,
     is_active: true, cuisine_type: "Italienne", prep_time_min: 20, delivery_fee: 2.50, opening_hours: hours,
   });
-  await seedMenuIfEmpty(resto4.id, async () => {
+  await seedMenuIfEmpty(resto4.id, "La Pizzeria Roma", async () => {
     const p = await prisma.menuCategory.create({ data: { restaurant_id: resto4.id, name: "Pizzas",    position: 1, availability: "always" } });
     const a = await prisma.menuCategory.create({ data: { restaurant_id: resto4.id, name: "Pâtes",     position: 2, availability: "always" } });
     const t = await prisma.menuCategory.create({ data: { restaurant_id: resto4.id, name: "Antipasti", position: 3, availability: "always" } });
@@ -185,12 +187,12 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 5 - Tokyo Ramen House (Tour Eiffel)
   // ─────────────────────────────────────────────
-  const resto5 = await upsertRestaurant("Tokyo Ramen House", {
+  const resto5 = await upsertRestaurant("seed-resto-ramen", "Tokyo Ramen House", {
     owner_id: owner5.id, description: "Ramens authentiques et gyozas croustillants près de la Tour Eiffel. Bouillons mijotés 12h.",
     address: "3 Avenue de Suffren, 75007 Paris", lat: 48.8507, lng: 2.3000,
     is_active: true, cuisine_type: "Japonaise", prep_time_min: 18, delivery_fee: 2.80, opening_hours: hours,
   });
-  await seedMenuIfEmpty(resto5.id, async () => {
+  await seedMenuIfEmpty(resto5.id, "Tokyo Ramen House", async () => {
     const r = await prisma.menuCategory.create({ data: { restaurant_id: resto5.id, name: "Ramens",           position: 1, availability: "always" } });
     const g = await prisma.menuCategory.create({ data: { restaurant_id: resto5.id, name: "Gyozas & Entrées", position: 2, availability: "always" } });
     const b = await prisma.menuCategory.create({ data: { restaurant_id: resto5.id, name: "Boissons",          position: 3, availability: "always" } });
