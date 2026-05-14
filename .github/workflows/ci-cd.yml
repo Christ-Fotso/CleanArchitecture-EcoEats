@@ -48,3 +48,20 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/ecoeats-frontend:latest
+
+  deploy:
+    needs: build-docker
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/ecoeat
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
