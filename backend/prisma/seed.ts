@@ -59,6 +59,21 @@ async function main() {
   const owner4  = await upsertUser("sofia.rossi@ecoeats.fr", "Sofia Rossi",       "RESTAURANT_OWNER", "0145678904");
   const owner5  = await upsertUser("kenji.tanaka@ecoeats.fr","Kenji Tanaka",      "RESTAURANT_OWNER", "0145678905");
 
+  // ─────────────────────────────────────────────
+  // Helper : trouve ou crée un restaurant par nom
+  // Puis ajoute le menu s'il n'en a pas encore
+  // ─────────────────────────────────────────────
+  const upsertRestaurant = async (name: string, createData: any) => {
+    let resto = await prisma.restaurant.findFirst({ where: { name } });
+    if (!resto) {
+      resto = await prisma.restaurant.create({ data: { name, ...createData } });
+      console.log(`   → Créé : ${name}`);
+    } else {
+      console.log(`   → Existant : ${name}`);
+    }
+    return resto;
+  };
+
   const hours = {
     monday: { open: "11:30", close: "22:30" }, tuesday:   { open: "11:30", close: "22:30" },
     wednesday: { open: "11:30", close: "22:30" }, thursday: { open: "11:30", close: "22:30" },
@@ -69,16 +84,10 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 1 - Le Bistrot Parisien (Montmartre)
   // ─────────────────────────────────────────────
-  const resto1 = await prisma.restaurant.upsert({
-    where:  { id: "seed-resto-bistrot" },
-    update: {},
-    create: {
-      id: "seed-resto-bistrot", owner_id: owner1.id,
-      name: "Le Bistrot Parisien", description: "Cuisine française traditionnelle au cœur de Montmartre.",
-      address: "12 Rue Lepic, 75018 Paris", lat: 48.8865, lng: 2.3360,
-      is_active: true, cuisine_type: "Française", prep_time_min: 25,
-      delivery_fee: 2.50, opening_hours: hours,
-    },
+  const resto1 = await upsertRestaurant("Le Bistrot Parisien", {
+    owner_id: owner1.id, description: "Cuisine française traditionnelle au cœur de Montmartre.",
+    address: "12 Rue Lepic, 75018 Paris", lat: 48.8865, lng: 2.3360,
+    is_active: true, cuisine_type: "Française", prep_time_min: 25, delivery_fee: 2.50, opening_hours: hours,
   });
   await seedMenuIfEmpty(resto1.id, async () => {
     const e = await prisma.menuCategory.create({ data: { restaurant_id: resto1.id, name: "Entrées",  position: 1, availability: "always" } });
@@ -99,16 +108,10 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 2 - Sushi Sakura (Opéra)
   // ─────────────────────────────────────────────
-  const resto2 = await prisma.restaurant.upsert({
-    where:  { id: "seed-resto-sushi" },
-    update: {},
-    create: {
-      id: "seed-resto-sushi", owner_id: owner2.id,
-      name: "Sushi Sakura", description: "Authentique cuisine japonaise près de l'Opéra. Sushis préparés à la minute.",
-      address: "8 Rue de la Paix, 75002 Paris", lat: 48.8698, lng: 2.3310,
-      is_active: true, cuisine_type: "Japonaise", prep_time_min: 20,
-      delivery_fee: 3.00, opening_hours: hours,
-    },
+  const resto2 = await upsertRestaurant("Sushi Sakura", {
+    owner_id: owner2.id, description: "Authentique cuisine japonaise près de l'Opéra. Sushis préparés à la minute.",
+    address: "8 Rue de la Paix, 75002 Paris", lat: 48.8698, lng: 2.3310,
+    is_active: true, cuisine_type: "Japonaise", prep_time_min: 20, delivery_fee: 3.00, opening_hours: hours,
   });
   await seedMenuIfEmpty(resto2.id, async () => {
     const s = await prisma.menuCategory.create({ data: { restaurant_id: resto2.id, name: "Sushis & Makis", position: 1, availability: "always" } });
@@ -158,16 +161,10 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 4 - La Pizzeria Roma (Mouffetard)
   // ─────────────────────────────────────────────
-  const resto4 = await prisma.restaurant.upsert({
-    where:  { id: "seed-resto-pizza" },
-    update: {},
-    create: {
-      id: "seed-resto-pizza", owner_id: owner4.id,
-      name: "La Pizzeria Roma", description: "Pizzas napolitaines cuites au feu de bois. Pâte à la farine italienne importée.",
-      address: "22 Rue Mouffetard, 75005 Paris", lat: 48.8428, lng: 2.3507,
-      is_active: true, cuisine_type: "Italienne", prep_time_min: 20,
-      delivery_fee: 2.50, opening_hours: hours,
-    },
+  const resto4 = await upsertRestaurant("La Pizzeria Roma", {
+    owner_id: owner4.id, description: "Pizzas napolitaines cuites au feu de bois. Pâte à la farine italienne importée.",
+    address: "22 Rue Mouffetard, 75005 Paris", lat: 48.8428, lng: 2.3507,
+    is_active: true, cuisine_type: "Italienne", prep_time_min: 20, delivery_fee: 2.50, opening_hours: hours,
   });
   await seedMenuIfEmpty(resto4.id, async () => {
     const p = await prisma.menuCategory.create({ data: { restaurant_id: resto4.id, name: "Pizzas",    position: 1, availability: "always" } });
@@ -188,16 +185,10 @@ async function main() {
   // ─────────────────────────────────────────────
   // Restaurant 5 - Tokyo Ramen House (Tour Eiffel)
   // ─────────────────────────────────────────────
-  const resto5 = await prisma.restaurant.upsert({
-    where:  { id: "seed-resto-ramen" },
-    update: {},
-    create: {
-      id: "seed-resto-ramen", owner_id: owner5.id,
-      name: "Tokyo Ramen House", description: "Ramens authentiques et gyozas croustillants près de la Tour Eiffel. Bouillons mijotés 12h.",
-      address: "3 Avenue de Suffren, 75007 Paris", lat: 48.8507, lng: 2.3000,
-      is_active: true, cuisine_type: "Japonaise", prep_time_min: 18,
-      delivery_fee: 2.80, opening_hours: hours,
-    },
+  const resto5 = await upsertRestaurant("Tokyo Ramen House", {
+    owner_id: owner5.id, description: "Ramens authentiques et gyozas croustillants près de la Tour Eiffel. Bouillons mijotés 12h.",
+    address: "3 Avenue de Suffren, 75007 Paris", lat: 48.8507, lng: 2.3000,
+    is_active: true, cuisine_type: "Japonaise", prep_time_min: 18, delivery_fee: 2.80, opening_hours: hours,
   });
   await seedMenuIfEmpty(resto5.id, async () => {
     const r = await prisma.menuCategory.create({ data: { restaurant_id: resto5.id, name: "Ramens",           position: 1, availability: "always" } });
@@ -238,19 +229,24 @@ async function main() {
   }
 
   console.log("");
-  console.log("══════════════════════════════════════════");
-  console.log("🎉 Seeding terminé ! (0 doublon possible)");
-  console.log("══════════════════════════════════════════");
-  console.log("📧 Comptes de test (mot de passe : Password123!)");
-  console.log("   client@ecoeats.fr | admin@ecoeats.fr | driver@fast.fr");
-  console.log("══════════════════════════════════════════");
-  console.log("🗺️  5 restaurants parisiens insérés :");
-  console.log("   1. Le Bistrot Parisien  - 12 Rue Lepic, 75018");
-  console.log("   2. Sushi Sakura         - 8 Rue de la Paix, 75002");
-  console.log("   3. Chez Mahmoud         - 45 Rue de Bretagne, 75003");
-  console.log("   4. La Pizzeria Roma     - 22 Rue Mouffetard, 75005");
-  console.log("   5. Tokyo Ramen House    - 3 Av. de Suffren, 75007");
-  console.log("══════════════════════════════════════════");
+  console.log("══════════════════════════════════════════════════");
+  console.log("🎉 Seeding terminé ! (idempotent - 0 doublon)");
+  console.log("══════════════════════════════════════════════════");
+  console.log("👑 COMPTE ADMIN (accès tableau de bord complet) :");
+  console.log("   Email    : admin@ecoeats.fr");
+  console.log("   Password : Password123!");
+  console.log("──────────────────────────────────────────────────");
+  console.log("📧 Autres comptes de test (Password123!) :");
+  console.log("   Client  : client@ecoeats.fr");
+  console.log("   Driver  : driver@fast.fr");
+  console.log("──────────────────────────────────────────────────");
+  console.log("🗺️  5 restaurants parisiens (avec menus) :");
+  console.log("   1. Le Bistrot Parisien  - 12 Rue Lepic, 75018       (7 plats)");
+  console.log("   2. Sushi Sakura         - 8 Rue de la Paix, 75002   (6 plats)");
+  console.log("   3. Chez Mahmoud         - 45 Rue de Bretagne, 75003 (7 plats)");
+  console.log("   4. La Pizzeria Roma     - 22 Rue Mouffetard, 75005  (7 plats)");
+  console.log("   5. Tokyo Ramen House    - 3 Av. de Suffren, 75007   (8 plats)");
+  console.log("══════════════════════════════════════════════════");
 }
 
 main()
