@@ -68,3 +68,8 @@ jobs:
             docker compose pull
             docker compose up -d
             docker image prune -f
+            echo "⏳ Attente que le backend soit prêt..."
+            sleep 20
+            echo "🌱 Exécution du seed (restaurants Paris)..."
+            docker exec ecoeats-backend sh -c "npx prisma db seed"
+            echo "✅ Seed terminé !"
