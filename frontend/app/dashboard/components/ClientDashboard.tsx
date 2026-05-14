@@ -13,11 +13,25 @@ export function ClientDashboard({ userName }: { userName: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getActiveRestaurants().then((result) => {
-      if (result.ok) setRestaurants(result.data ?? []);
-      setLoading(false);
-    });
+    const fetchRestaurants = (coords?: { lat: number; lng: number }) => {
+      getActiveRestaurants(coords).then((result) => {
+        if (result.ok) setRestaurants(result.data ?? []);
+        setLoading(false);
+      });
+    };
+
+    // Demande la géolocalisation du navigateur pour calculer les frais dynamiques
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchRestaurants({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => fetchRestaurants(), // Si refus, on utilise les frais fixes du restaurant
+        { timeout: 5000 }
+      );
+    } else {
+      fetchRestaurants();
+    }
   }, []);
+
 
   return (
     <div className="max-w-2xl space-y-6 mx-auto">

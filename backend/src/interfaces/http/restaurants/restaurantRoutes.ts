@@ -29,6 +29,7 @@ import type { ToggleRestaurantStatusUseCase } from "../../../application/usecase
 import type { IRestaurantRepository } from "../../../application/ports/IRestaurantRepository.js";
 import { domainErrorToStatus } from "../utils/domainErrorToStatus.js";
 import { RestaurantPresenter } from "../../presenters/RestaurantPresenter.js";
+import { haversineDistance, calculateDeliveryFee, estimateDeliveryTime } from "../../../shared/utils/deliveryCalculator.js";
 
 const timeSlotSchema = z.object({
   open:  z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
@@ -76,10 +77,32 @@ export function createRestaurantRoutes(
 ): Router {
   const router = Router();
 
-  router.get("/active", async (_request: Request, response: Response) => {
+  router.get("/active", async (request: Request, response: Response) => {
     const restaurants = await restaurantRepository.findAllActive();
-    response.json(RestaurantPresenter.toDtoList(restaurants));
+
+    // Coordonnées GPS du client (optionnelles, envoyées par le frontend)
+    const clientLat = parseFloat(request.query.lat as string);
+    const clientLng = parseFloat(request.query.lng as string);
+    const hasClientLocation = !isNaN(clientLat) && !isNaN(clientLng);
+
+    const dtos = RestaurantPresenter.toDtoList(restaurants).map((r: any) => {
+      if (hasClientLocation && r.lat && r.lng) {
+        const distanceKm    = haversineDistance(clientLat, clientLng, r.lat, r.lng);
+        const deliveryFee   = calculateDeliveryFee(distanceKm);
+        const deliveryTime  = estimateDeliveryTime(distanceKm, r.prepTimeMin ?? 20);
+        return {
+          ...r,
+          deliveryFee,
+          prepTimeMin:  deliveryTime,
+          distanceKm:   Math.round(distanceKm * 10) / 10,
+        };
+      }
+      return r;
+    });
+
+    response.json(dtos);
   });
+
 
   router.get("/:id/public", async (request: Request, response: Response) => {
     const { id } = request.params;

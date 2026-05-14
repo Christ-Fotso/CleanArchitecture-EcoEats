@@ -7,9 +7,12 @@ export type RestaurantDto = {
   description:  string | null;
   logoUrl:      string | null;
   address:      string;
+  lat?:         number;
+  lng?:         number;
   cuisineType:  string;
   prepTimeMin:  number;
   deliveryFee:  number;
+  distanceKm?:  number;
   isActive:     boolean;
   ratingAvg:    number | null;
   openingHours: OpeningHoursMap;
@@ -35,8 +38,10 @@ export type UpdateRestaurantProfileInput = {
   deliveryFee?: number;
 };
 
-export const getActiveRestaurants = () =>
-  callJson<RestaurantDto[]>("/restaurants/active");
+export const getActiveRestaurants = (coords?: { lat: number; lng: number }) => {
+  const params = coords ? `?lat=${coords.lat}&lng=${coords.lng}` : "";
+  return callJson<RestaurantDto[]>(`/restaurants/active${params}`);
+};
 
 export const getMyRestaurants = (accessToken: string) =>
   callAuthJson<RestaurantDto[]>("/restaurants", accessToken);
