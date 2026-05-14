@@ -1,5 +1,5 @@
-import type { PrismaClient } from "../../generated/prisma/client.js";
-import { PaymentType } from "../../generated/prisma/enums.js";
+import type { PrismaClient } from "@prisma/client";
+import pkg from "@prisma/client"; const { PaymentType } = pkg;
 import type { IPaymentMethodRepository } from "../../application/ports/IPaymentMethodRepository.js";
 import type { SavedPaymentMethod, CreatePaymentMethodInput, PaymentMethodType } from "../../application/payment/types.js";
 

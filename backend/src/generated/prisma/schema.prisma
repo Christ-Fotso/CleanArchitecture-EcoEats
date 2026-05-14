@@ -1,0 +1,605 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+// --- driver_models.prisma.part ---
+// --- driver_models.prisma ---
+
+model Driver {
+  id             String          @id @default(uuid())
+  name           String
+  email          String          @unique
+  phone          String
+  photo_url      String?
+  transport_type TransportType
+  is_online      Boolean
+  lat            Float
+  lng            Float
+  rating_avg     Float?
+  is_verified    Boolean
+  is_expert      Boolean         @default(false)
+  user_id        String?         @unique
+  created_at     DateTime        @default(now())
+  earnings       DriverEarning[] @relation("DriverEarnings")
+  orders         Order[]         @relation("DriverOrders")
+  reviews        Review[]        @relation("DriverReviews")
+  user           User?           @relation("DriverUser", fields: [user_id], references: [id])
+
+  @@index([is_online])
+  @@index([transport_type])
+  @@index([created_at])
+}
+
+enum TransportType {
+  bike
+  scooter
+  car
+}
+
+model DriverEarning {
+  id          String        @id @default(uuid())
+  driver_id   String
+  order_id    String
+  base_amount Decimal
+  bonus       Decimal
+  tip         Decimal
+  total       Decimal
+  status      EarningStatus
+  paid_at     DateTime?
+  driver      Driver        @relation("DriverEarnings", fields: [driver_id], references: [id])
+  order       Order         @relation("OrderDriverEarnings", fields: [order_id], references: [id])
+
+  @@index([driver_id])
+  @@index([order_id])
+  @@index([status])
+}
+
+enum EarningStatus {
+  pending
+  paid
+}
+
+// --- menu_restaurants_models.prisma.part ---
+// --- restaurants.prisma ---
+model Restaurant {
+  id              String         @id @default(uuid())
+  owner_id        String // FK → users
+  name            String
+  description     String?
+  logo_url        String?
+  address         String
+  lat             Float
+  lng             Float
+  opening_hours   Json
+  is_active       Boolean
+  rating_avg      Float?
+  cuisine_type    String
+  prep_time_min   Int
+  delivery_fee    Decimal
+  owner           User           @relation("UserRestaurants", fields: [owner_id], references: [id])
+  menu_categories MenuCategory[] @relation("RestaurantCategories")
+  orders          Order[]        @relation("RestaurantOrders")
+  reviews         Review[]       @relation("RestaurantReviews")
+
+  @@index([owner_id])
+  @@index([is_active])
+  @@index([cuisine_type])
+}
+
+// --- menu_categories.prisma ---
+model MenuCategory {
+  id            String                   @id @default(uuid())
+  restaurant_id String
+  name          String
+  position      Int
+  availability  MenuCategoryAvailability
+  restaurant    Restaurant               @relation(fields: [restaurant_id], references: [id], name: "RestaurantCategories")
+  menu_items    MenuItem[]               @relation("CategoryItems")
+
+  @@index([restaurant_id])
+  @@index([availability])
+}
+
+enum MenuCategoryAvailability {
+  always
+  lunch
+  dinner
+  weekend
+}
+
+// --- menu_items.prisma ---
+model MenuItem {
+  id           String           @id @default(uuid())
+  category_id  String
+  name         String
+  description  String?
+  photo_url    String?
+  price        Decimal
+  is_available Boolean
+  is_popular   Boolean
+  daily_stock  Int?
+  category     MenuCategory     @relation(fields: [category_id], references: [id], name: "CategoryItems", onDelete: Cascade)
+  options      MenuItemOption[] @relation("ItemOptions")
+  order_items  OrderItem[]      @relation("MenuItemOrderItems")
+
+  @@index([category_id])
+  @@index([is_available])
+  @@index([is_popular])
+}
+
+// --- menu_item_options.prisma ---
+model MenuItemOption {
+  id          String                @id @default(uuid())
+  item_id     String
+  name        String
+  type        MenuItemOptionType
+  is_required Boolean
+  item        MenuItem              @relation(fields: [item_id], references: [id], name: "ItemOptions", onDelete: Cascade)
+  values      MenuItemOptionValue[] @relation("OptionValues")
+
+  @@index([item_id])
+  @@index([type])
+}
+
+enum MenuItemOptionType {
+  single
+  multiple
+}
+
+// --- menu_item_option_values.prisma ---
+model MenuItemOptionValue {
+  id          String               @id @default(uuid())
+  option_id   String
+  label       String
+  extra_price Decimal
+  option      MenuItemOption       @relation(fields: [option_id], references: [id], name: "OptionValues")
+  selections  OrderItemSelection[] @relation("OptionValueSelections")
+
+  @@index([option_id])
+}
+
+// --- notification_support_models.prisma.part ---
+// --- notification_support_models.prisma ---
+
+model Notification {
+  id      String              @id @default(uuid())
+  user_id String
+  channel NotificationChannel
+  type    String
+  title   String
+  body    String
+  is_read Boolean
+  sent_at DateTime
+  user    User                @relation("UserNotifications", fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([is_read])
+  @@index([sent_at])
+}
+
+enum NotificationChannel {
+  push
+  sms
+  email
+}
+
+model SupportTicket {
+  id         String           @id @default(uuid())
+  user_id    String
+  order_id   String
+  reason     SupportReason
+  status     SupportStatus
+  created_at DateTime         @default(now())
+  user       User             @relation("UserSupportTickets", fields: [user_id], references: [id])
+  order      Order            @relation("OrderSupportTickets", fields: [order_id], references: [id])
+  messages   SupportMessage[] @relation("TicketMessages")
+
+  @@index([user_id])
+  @@index([order_id])
+  @@index([status])
+  @@index([created_at])
+}
+
+enum SupportReason {
+  missing_item
+  wrong_item
+  other
+}
+
+enum SupportStatus {
+  open
+  in_progress
+  resolved
+}
+
+model SupportMessage {
+  id        String        @id @default(uuid())
+  ticket_id String
+  sender_id String
+  role      SupportRole
+  content   String
+  sent_at   DateTime
+  ticket    SupportTicket @relation("TicketMessages", fields: [ticket_id], references: [id])
+
+  @@index([ticket_id])
+  @@index([sender_id])
+  @@index([sent_at])
+}
+
+enum SupportRole {
+  user
+  agent
+  bot
+}
+
+// --- order_models.prisma.part ---
+// --- order_models.prisma ---
+
+model Order {
+  id                    String               @id @default(uuid())
+  user_id               String
+  restaurant_id         String
+  driver_id             String?
+  delivery_address_id   String
+  promo_code_id         String?
+  payment_method_id     String?
+  status                OrderStatus
+  subtotal              Decimal
+  delivery_fee          Decimal
+  taxes                 Decimal
+  tip_amount            Decimal
+  total                 Decimal
+  estimated_delivery_at DateTime
+  delivered_at          DateTime?
+  created_at            DateTime             @default(now())
+  user                  User                 @relation("UserOrders", fields: [user_id], references: [id])
+  restaurant            Restaurant           @relation("RestaurantOrders", fields: [restaurant_id], references: [id])
+  driver                Driver?              @relation("DriverOrders", fields: [driver_id], references: [id])
+  delivery_address      UserAddress          @relation("OrderDeliveryAddress", fields: [delivery_address_id], references: [id])
+  promo_code            PromoCode?           @relation("OrderPromoCode", fields: [promo_code_id], references: [id])
+  payment_method        PaymentMethod?       @relation("OrderPaymentMethod", fields: [payment_method_id], references: [id])
+  order_items           OrderItem[]
+  status_history        OrderStatusHistory[]
+  reviews               Review[]             @relation("OrderReviews")
+  driver_earnings       DriverEarning[]      @relation("OrderDriverEarnings")
+  support_tickets       SupportTicket[]      @relation("OrderSupportTickets")
+  loyalty_points        LoyaltyPoint[]       @relation("OrderLoyaltyPoints")
+
+  @@index([user_id])
+  @@index([restaurant_id])
+  @@index([driver_id])
+  @@index([delivery_address_id])
+  @@index([promo_code_id])
+  @@index([payment_method_id])
+  @@index([status])
+  @@index([created_at])
+}
+
+enum OrderStatus {
+  created
+  confirmed
+  prepared
+  delivering
+  delivered
+  cancelled
+}
+
+model OrderItem {
+  id           String               @id @default(uuid())
+  order_id     String
+  menu_item_id String
+  quantity     Int
+  unit_price   Decimal
+  notes        String?
+  order        Order                @relation(fields: [order_id], references: [id])
+  menu_item    MenuItem             @relation("MenuItemOrderItems", fields: [menu_item_id], references: [id])
+  selections   OrderItemSelection[]
+
+  @@index([order_id])
+  @@index([menu_item_id])
+}
+
+model OrderItemSelection {
+  id              String              @id @default(uuid())
+  order_item_id   String
+  option_value_id String
+  extra_price     Decimal
+  order_item      OrderItem           @relation(fields: [order_item_id], references: [id])
+  option_value    MenuItemOptionValue @relation("OptionValueSelections", fields: [option_value_id], references: [id])
+
+  @@index([order_item_id])
+  @@index([option_value_id])
+}
+
+model OrderStatusHistory {
+  id         String      @id @default(uuid())
+  order_id   String
+  status     OrderStatus
+  note       String?
+  changed_at DateTime
+  order      Order       @relation(fields: [order_id], references: [id])
+
+  @@index([order_id])
+  @@index([status])
+  @@index([changed_at])
+}
+
+model Review {
+  id                String     @id @default(uuid())
+  order_id          String
+  user_id           String
+  restaurant_id     String
+  driver_id         String?
+  restaurant_rating Int
+  driver_rating     Int?
+  comment           String?
+  photo_url         String?
+  created_at        DateTime   @default(now())
+  order             Order      @relation("OrderReviews", fields: [order_id], references: [id])
+  user              User       @relation("UserReviews", fields: [user_id], references: [id])
+  restaurant        Restaurant @relation("RestaurantReviews", fields: [restaurant_id], references: [id])
+  driver            Driver?    @relation("DriverReviews", fields: [driver_id], references: [id])
+
+  @@unique([order_id])
+  @@index([user_id])
+  @@index([restaurant_id])
+  @@index([driver_id])
+  @@index([created_at])
+}
+
+// --- promo_loyalty_referral_models.prisma.part ---
+// --- promo_loyalty_referral_models.prisma ---
+
+model PromoCode {
+  id         String    @id @default(uuid())
+  code       String    @unique
+  type       PromoType
+  value      Decimal
+  min_order  Decimal
+  max_uses   Int
+  uses_count Int
+  expires_at DateTime
+  orders     Order[]   @relation("OrderPromoCode")
+
+  @@index([expires_at])
+  @@index([type])
+}
+
+enum PromoType {
+  percent
+  fixed
+  free_delivery
+}
+
+model LoyaltyPoint {
+  id         String        @id @default(uuid())
+  user_id    String
+  order_id   String
+  points     Int
+  reason     LoyaltyReason
+  created_at DateTime      @default(now())
+  user       User          @relation("UserLoyaltyPoints", fields: [user_id], references: [id])
+  order      Order         @relation("OrderLoyaltyPoints", fields: [order_id], references: [id])
+
+  @@index([user_id])
+  @@index([order_id])
+  @@index([created_at])
+}
+
+enum LoyaltyReason {
+  order
+  referral
+  redeem
+}
+
+model Referral {
+  id          String         @id @default(uuid())
+  referrer_id String
+  referred_id String
+  code        String         @unique
+  status      ReferralStatus
+  created_at  DateTime       @default(now())
+  referrer    User           @relation("ReferralsSent", fields: [referrer_id], references: [id])
+  referred    User           @relation("ReferralsReceived", fields: [referred_id], references: [id])
+
+  @@index([referrer_id])
+  @@index([referred_id])
+  @@index([status])
+  @@index([created_at])
+}
+
+enum ReferralStatus {
+  pending
+  rewarded
+}
+
+// --- user_models.prisma.part ---
+// --- user_models.prisma ---
+
+enum Role {
+  CLIENT
+  RESTAURANT_OWNER
+  DRIVER
+  ADMIN
+}
+
+enum DocumentType {
+  kbis
+  id_card
+  driving_license
+  vehicle_insurance
+  vehicle_registration
+  food_hygiene
+}
+
+enum DocumentStatus {
+  pending
+  approved
+  rejected
+}
+
+model Document {
+  id            String         @id @default(uuid())
+  user_id       String
+  type          DocumentType
+  file_path     String
+  mime_type     String
+  status        DocumentStatus @default(pending)
+  reject_reason String?
+  created_at    DateTime       @default(now())
+  reviewed_at   DateTime?
+  user          User           @relation("UserDocuments", fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([status])
+  @@index([type])
+}
+
+enum PaymentType {
+  cb
+  paypal
+  apple
+  google
+}
+
+enum SubscriptionPlan {
+  free
+  premium
+}
+
+enum SubscriptionStatus {
+  active
+  cancelled
+  expired
+}
+
+enum AuthProvider {
+  password
+  phone
+  google
+  apple
+}
+
+model User {
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  phone              String
+  name               String
+  photo_url          String?
+  preferences        Json?
+  allergies          Json?
+  phone_verified     Boolean
+  role               Role            @default(CLIENT)
+  stripe_customer_id String?
+  created_at         DateTime        @default(now())
+  restaurants        Restaurant[]    @relation("UserRestaurants")
+  orders             Order[]         @relation("UserOrders")
+  reviews            Review[]        @relation("UserReviews")
+  notifications      Notification[]  @relation("UserNotifications")
+  support_tickets    SupportTicket[] @relation("UserSupportTickets")
+  loyalty_points     LoyaltyPoint[]  @relation("UserLoyaltyPoints")
+  referrals_sent     Referral[]      @relation("ReferralsSent")
+  referrals_received Referral[]      @relation("ReferralsReceived")
+  addresses          UserAddress[]
+  paymentMethods     PaymentMethod[]
+  subscriptions      Subscription[]
+  auth_identities    AuthIdentity[]
+  refresh_tokens     RefreshToken[]
+  driver_profile     Driver?         @relation("DriverUser")
+  documents          Document[]      @relation("UserDocuments")
+
+  @@index([created_at])
+}
+
+model AuthIdentity {
+  id               String       @id @default(uuid())
+  user_id          String
+  provider         AuthProvider
+  provider_user_id String
+  password_hash    String?
+  created_at       DateTime     @default(now())
+  user             User         @relation(fields: [user_id], references: [id])
+
+  @@unique([provider, provider_user_id])
+  @@index([user_id])
+  @@index([provider])
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  user_id    String
+  token_hash String    @unique
+  expires_at DateTime
+  revoked_at DateTime?
+  created_at DateTime  @default(now())
+  user       User      @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([expires_at])
+}
+
+model UserAddress {
+  id              String  @id @default(uuid())
+  user_id         String
+  label           String
+  street          String
+  city            String
+  lat             Float
+  lng             Float
+  is_default      Boolean
+  user            User    @relation(fields: [user_id], references: [id])
+  delivery_orders Order[] @relation("OrderDeliveryAddress")
+
+  @@index([user_id])
+  @@index([is_default])
+}
+
+model PaymentMethod {
+  id           String      @id @default(uuid())
+  user_id      String
+  type         PaymentType
+  stripe_token String?
+  label        String
+  is_default   Boolean
+  created_at   DateTime    @default(now())
+  user         User        @relation(fields: [user_id], references: [id])
+  orders       Order[]     @relation("OrderPaymentMethod")
+
+  @@index([user_id])
+  @@index([type])
+  @@index([is_default])
+}
+
+model Subscription {
+  id         String             @id @default(uuid())
+  user_id    String
+  plan       SubscriptionPlan
+  price      Decimal
+  status     SubscriptionStatus
+  started_at DateTime
+  expires_at DateTime
+  user       User               @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([status])
+  @@index([expires_at])
+}
+
+model DomainEvent {
+  id             String   @id @default(uuid())
+  aggregate_id   String
+  aggregate_type String
+  event_type     String
+  payload        Json
+  created_at     DateTime @default(now())
+
+  @@index([aggregate_id])
+  @@index([aggregate_type])
+  @@index([event_type])
+  @@index([created_at])
+}

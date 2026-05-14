@@ -13,9 +13,10 @@ export const createOrderSchema = z.object({
   body: z.object({
     restaurantId:     z.string().uuid(),
     deliveryStreet:   z.string().min(3),
+    deliveryPostalCode: z.string().min(1).optional(),
     deliveryCity:     z.string().min(1),
-    clientLat:        z.number(),
-    clientLng:        z.number(),
+    clientLat:        z.number().optional(),
+    clientLng:        z.number().optional(),
     items:            z.array(orderItemSchema).min(1),
     tipAmount:        z.number().min(0).optional(),
     paymentMethodId:  z.string().uuid().optional(),

@@ -1,4 +1,4 @@
-import { PrismaClient } from "../../generated/prisma/index.js";
+import pkg from "@prisma/client"; const { PrismaClient } = pkg;
 import { IEventStore, DomainEvent } from "../../application/ports/IEventStore.js";
 
 export class PrismaEventStore implements IEventStore {

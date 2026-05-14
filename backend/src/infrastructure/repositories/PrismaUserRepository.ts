@@ -1,5 +1,5 @@
-import type { PrismaClient } from "../../generated/prisma/client.js";
-import { AuthProvider, Role } from "../../generated/prisma/enums.js";
+import type { PrismaClient } from "@prisma/client";
+import pkg from "@prisma/client"; const { AuthProvider, Role } = pkg;
 import type { IUserRepository, CreateUserInput, UpdateUserInput, UserCredentials, UserRoleStats } from "../../application/ports/IUserRepository.js";
 import type { User } from "../../application/auth/types.js";
 

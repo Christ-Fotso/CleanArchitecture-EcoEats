@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { IRefreshTokenRepository, RefreshTokenRecord } from "../../application/ports/IRefreshTokenRepository.js";
 
 export class PrismaRefreshTokenRepository implements IRefreshTokenRepository {

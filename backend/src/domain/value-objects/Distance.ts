@@ -23,7 +23,15 @@ export class Distance {
     return new Distance(meters);
   }
 
+  static fromKm(km: number): Distance {
+    return new Distance(km * 1000);
+  }
+
   get kilometers(): number {
+    return this.meters / 1000;
+  }
+
+  toKm(): number {
     return this.meters / 1000;
   }
 

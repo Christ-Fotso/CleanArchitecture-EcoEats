@@ -16,6 +16,7 @@ export type CreateOrderPayload = {
   deliveryCity:       string;
   items:              OrderItemPayload[];
   deliveryFee:        number;
+  paymentMethodId?:   string;
 };
 
 export type OrderSummary = {

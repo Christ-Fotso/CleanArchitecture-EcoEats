@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import { PrismaDocumentRepository } from "../infrastructure/repositories/PrismaDocumentRepository.js";
 import { PrismaUserRepository } from "../infrastructure/repositories/PrismaUserRepository.js";
 import { PrismaRestaurantRepository } from "../infrastructure/repositories/PrismaRestaurantRepository.js";

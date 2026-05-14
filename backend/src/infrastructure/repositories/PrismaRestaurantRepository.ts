@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { IRestaurantRepository, RestaurantStats } from "../../application/ports/IRestaurantRepository.js";
 import type { Restaurant, CreateRestaurantInput, UpdateRestaurantProfileInput } from "../../application/restaurant/types.js";
 import type { OpeningHoursMap } from "../../domain/value-objects/OpeningHours.js";

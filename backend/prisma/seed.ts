@@ -1,30 +1,43 @@
-import { PrismaClient } from "../src/generated/prisma/client.js";
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
-import pg from "pg";
 
-const pool   = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma  = new PrismaClient({ adapter });
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL || "",
+  }),
+});
 
 async function main() {
   console.log("🌱 Début du seeding EcoEats (Fix Relations)...");
 
   // --- Nettoyage ---
   await prisma.orderStatusHistory.deleteMany();
+  await prisma.orderItemSelection.deleteMany();
   await prisma.orderItem.deleteMany();
+  await prisma.driverEarning.deleteMany();
+  await prisma.supportMessage.deleteMany();
+  await prisma.supportTicket.deleteMany();
+  await prisma.review.deleteMany();
+  await prisma.loyaltyPoint.deleteMany();
   await prisma.order.deleteMany();
+  await prisma.userAddress.deleteMany();
+  await prisma.paymentMethod.deleteMany();
+  await prisma.subscription.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.referral.deleteMany();
+  await prisma.document.deleteMany();
+  await prisma.menuItemOptionValue.deleteMany();
+  await prisma.menuItemOption.deleteMany();
   await prisma.menuItem.deleteMany();
   await prisma.menuCategory.deleteMany();
   await prisma.restaurant.deleteMany();
   await prisma.driver.deleteMany();
-  await prisma.review.deleteMany();
-  await prisma.loyaltyPoint.deleteMany();
-  await prisma.refreshToken.deleteMany();
   await prisma.authIdentity.deleteMany();
+  await prisma.refreshToken.deleteMany();
   await prisma.user.deleteMany();
 
-  const passwordHash = await bcrypt.hash("password123", 10);
+  const passwordHash = await bcrypt.hash("Password123!", 10);
 
   const createUser = async (email: string, name: string, role: any, phone: string) => {
     const user = await prisma.user.create({
@@ -106,6 +119,17 @@ async function main() {
     },
   });
 
+  // --- Payment Method for Test ---
+  await prisma.paymentMethod.create({
+    data: {
+      user_id:      clientU.id,
+      stripe_token: "pm_card_visa",
+      type:         "cb",
+      label:        "visa •••• 4242",
+      is_default:   true,
+    },
+  });
+
   console.log("✅ Seeding terminé !");
 }
 
@@ -116,5 +140,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-    pool.end();
   });

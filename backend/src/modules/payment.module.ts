@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { Env } from "../infrastructure/config/env.js";
 import { StripePaymentGateway } from "../infrastructure/payment/StripePaymentGateway.js";
 import { PrismaPaymentMethodRepository } from "../infrastructure/repositories/PrismaPaymentMethodRepository.js";

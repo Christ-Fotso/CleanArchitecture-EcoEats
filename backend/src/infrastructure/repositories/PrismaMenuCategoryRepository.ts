@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { IMenuCategoryRepository } from "../../application/ports/IMenuCategoryRepository.js";
 import type {
   MenuCategory,

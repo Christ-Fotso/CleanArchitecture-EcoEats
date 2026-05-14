@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { IDriverRepository, CreateDriverProfileInput, CreditEarningInput } from "../../application/ports/IDriverRepository.js";
 import type { DriverProfile, AvailableDelivery, ActiveDelivery, EarningRecord, DriverWallet } from "../../application/driver/types.js";
 

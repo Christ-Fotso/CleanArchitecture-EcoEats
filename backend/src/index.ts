@@ -15,6 +15,7 @@ import { ConfigService } from "./infrastructure/config/ConfigService.js";
 import { RedisCacheService } from "./infrastructure/services/RedisCacheService.js";
 import { PrismaEventStore } from "./infrastructure/repositories/PrismaEventStore.js";
 import { MetricsService } from "./infrastructure/monitoring/MetricsService.js";
+import { OsrmRoutingService } from "./infrastructure/services/OsrmRoutingService.js";
 
 // ── Modules métier ────────────────────────────────────────────────────────────
 import { buildAuthModule } from "./modules/auth.module.js";
@@ -39,6 +40,7 @@ const configService          = new ConfigService(env);
 const cacheService           = new RedisCacheService(configService);
 const eventStore             = new PrismaEventStore(prisma);
 const metricsService         = new MetricsService();
+const routingService         = new OsrmRoutingService();
 
 /* Proxy lazy : le gateway réel (Socket.IO) est injecté après démarrage du serveur HTTP. */
 let resolvedGateway: SocketIOGateway | null = null;
@@ -52,7 +54,7 @@ const auth        = buildAuthModule({ userRepository, refreshTokenRepository, jw
 const payment     = buildPaymentModule({ prisma, env });
 const restaurant  = buildRestaurantModule({ prisma });
 const menu        = buildMenuModule({ prisma, cacheService });
-const order       = buildOrderModule({ prisma, restaurantModule: restaurant, menuModule: menu, notificationGateway, paymentMethodRepository: payment.paymentMethodRepository, eventStore });
+const order       = buildOrderModule({ prisma, restaurantModule: restaurant, menuModule: menu, notificationGateway, paymentMethodRepository: payment.paymentMethodRepository, routingService, eventStore });
 const driver      = buildDriverModule({ prisma, orderModule: order, notificationGateway });
 const admin       = buildAdminModule({ prisma });
 

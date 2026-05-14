@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { INotificationGateway } from "../application/ports/INotificationGateway.js";
 import type { buildRestaurantModule } from "./restaurant.module.js";
 import type { buildMenuModule } from "./menu.module.ts";
@@ -10,6 +10,7 @@ import { UpdateOrderStatusUseCase } from "../application/usecases/order/UpdateOr
 import { GetOrderInvoiceUseCase } from "../application/usecases/order/GetOrderInvoiceUseCase.js";
 
 import type { IEventStore } from "../application/ports/IEventStore.js";
+import type { IRoutingService } from "../application/ports/IRoutingService.js";
 
 type Deps = {
   prisma:              PrismaClient;
@@ -17,13 +18,14 @@ type Deps = {
   menuModule:          ReturnType<typeof buildMenuModule>;
   notificationGateway: INotificationGateway;
   paymentMethodRepository: any;
-  eventStore:          IEventStore;
+  routingService:          IRoutingService;
+  eventStore:              IEventStore;
 };
 
 /**
  * Module Order — assemble le repository et tous les use cases commandes.
  */
-export function buildOrderModule({ prisma, restaurantModule, menuModule, notificationGateway, paymentMethodRepository, eventStore }: Deps) {
+export function buildOrderModule({ prisma, restaurantModule, menuModule, notificationGateway, paymentMethodRepository, routingService, eventStore }: Deps) {
   const orderRepository = new PrismaOrderRepository(prisma);
 
   return {
@@ -33,6 +35,7 @@ export function buildOrderModule({ prisma, restaurantModule, menuModule, notific
       restaurantModule.restaurantRepository,
       menuModule.menuItemRepository,
       paymentMethodRepository,
+      routingService,
       eventStore,
     ),
     getUserOrdersUseCase:      new GetUserOrdersUseCase(orderRepository),

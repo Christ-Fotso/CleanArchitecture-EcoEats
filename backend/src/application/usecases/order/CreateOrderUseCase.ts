@@ -9,6 +9,7 @@ import type { IEventStore } from "../../ports/IEventStore.js";
 import { Cart, CartItem } from "../../../domain/entities/Cart.js";
 import { Order } from "../../../domain/entities/Order.js";
 import { Distance } from "../../../domain/value-objects/Distance.js";
+import type { IRoutingService } from "../../ports/IRoutingService.js";
 import { Money } from "../../../domain/value-objects/Money.js";
 import { DomainError } from "../../../domain/errors/DomainError.js";
 import { EmptyCartError, OutOfStockError } from "../../../domain/errors/CartErrors.js";
@@ -59,6 +60,7 @@ export class CreateOrderUseCase {
     private readonly restaurantRepository: IRestaurantRepository,
     private readonly menuItemRepository:   IMenuItemRepository,
     private readonly paymentMethodRepository: IPaymentMethodRepository,
+    private readonly routingService:         IRoutingService,
     private readonly eventStore:            IEventStore,
   ) {}
 
@@ -96,17 +98,19 @@ export class CreateOrderUseCase {
     }
     if (cart.isEmpty) return failure(new EmptyCartError());
 
-    /* ── Calcul du prix via l'entité domaine ── */
-    const distance = Distance.fromCoordinates(
-      input.clientLat,       input.clientLng,
-      restaurant.lat,        restaurant.lng,
+    /* ── Calcul du trajet réel via OSRM ── */
+    const routeInfo = await this.routingService.calculateRoute(
+      input.clientLat, input.clientLng,
+      restaurant.lat,  restaurant.lng
     );
+
     const order = new Order({
       id:               crypto.randomUUID(),
       clientId:         input.userId,
       restaurantId:     input.rawInput.restaurantId,
       items:            [...cart.items],
-      deliveryDistance: distance,
+      deliveryDistance: Distance.fromKm(routeInfo.distanceKm),
+      prepTimeMin:      restaurant.prepTimeMin,
     });
 
     /* ── Persistance avec les valeurs calculées par le domaine ── */
@@ -126,15 +130,6 @@ export class CreateOrderUseCase {
       }
     }
 
-    return ok({
-      id:          summary.id,
-      status:      summary.status,
-      subtotal:    summary.subtotal,
-      deliveryFee: summary.deliveryFee,
-      total:       summary.total,
-      estimatedAt: summary.estimatedAt,
-    });
-
     // Event Sourcing : Enregistrer la création
     await this.eventStore.save({
       aggregateId:   summary.id,
@@ -148,6 +143,13 @@ export class CreateOrderUseCase {
       },
     });
 
-    return res;
+    return ok({
+      id:          summary.id,
+      status:      summary.status,
+      subtotal:    summary.subtotal,
+      deliveryFee: summary.deliveryFee,
+      total:       summary.total,
+      estimatedAt: summary.estimatedAt,
+    });
   }
 }

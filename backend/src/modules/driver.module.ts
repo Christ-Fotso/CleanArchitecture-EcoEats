@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { INotificationGateway } from "../application/ports/INotificationGateway.js";
 import type { buildRestaurantModule } from "./restaurant.module.js";
 import type { buildOrderModule } from "./order.module.js";

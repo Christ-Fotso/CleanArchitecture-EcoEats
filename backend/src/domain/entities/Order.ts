@@ -23,6 +23,7 @@ export type OrderProps = {
   restaurantId: string;
   items: readonly CartItem[];
   deliveryDistance: Distance;
+  prepTimeMin?: number;
   status?: OrderStatusValue;
   createdAt?: Date;
 };
@@ -42,6 +43,7 @@ export class Order {
   readonly total: Money;
   readonly status: OrderStatus;
   readonly createdAt: Date;
+  readonly estimatedDeliveryAt: Date;
 
   constructor(props: OrderProps) {
     this.id           = props.id;
@@ -64,6 +66,12 @@ export class Order {
     );
     this.serviceFee  = this.itemsTotal.multiply(SERVICE_FEE_RATE);
     this.total       = this.itemsTotal.add(this.deliveryFee).add(this.serviceFee);
+
+    // Estimation dynamique : Préparation + Trajet (vitesse moyenne 12km/h soit 5min/km)
+    const prepTime = props.prepTimeMin ?? 20;
+    const travelTime = Math.ceil(props.deliveryDistance.toKm() * 5);
+    const totalMinutes = prepTime + travelTime + 5; // +5min tampon
+    this.estimatedDeliveryAt = new Date(this.createdAt.getTime() + totalMinutes * 60 * 1000);
   }
 
   transitionTo(next: OrderStatusValue): Order {

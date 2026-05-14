@@ -102,7 +102,8 @@ export function CheckoutModal({
         deliveryStreet:     street.trim(),
         deliveryPostalCode: postalCode.trim(),
         deliveryCity:       city.trim(),
-        deliveryFee:    restaurant.deliveryFee,
+        deliveryFee:        restaurant.deliveryFee,
+        paymentMethodId:    selectedCardId || undefined,
         items:          cart.map((entry) => ({
           menuItemId:     entry.item.id,
           name:           entry.item.name,
@@ -178,18 +179,26 @@ export function CheckoutModal({
           {/* ── ÉTAPE 1 : Adresse ── */}
           {step === "address" && (
             <div className="space-y-3">
-              <p className="text-sm font-bold text-slate-900">Adresse de livraison</p>
-              <input type="text" placeholder="Numéro et rue *" value={street}
-                onChange={(e) => setStreet(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+              <div className="space-y-1">
+                <label htmlFor="delivery-street" className="text-sm font-bold text-slate-900">Adresse de livraison</label>
+                <input id="delivery-street" type="text" placeholder="Numéro et rue *" value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+              </div>
               <div className="flex gap-2">
-                <input type="text" placeholder="Code postal *" value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  maxLength={10}
-                  className="w-36 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400" />
-                <input type="text" placeholder="Ville *" value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                <div className="space-y-1 w-36">
+                  <label htmlFor="delivery-postal" className="text-xs font-semibold text-slate-500">Code postal</label>
+                  <input id="delivery-postal" type="text" placeholder="75000 *" value={postalCode}
+                    onChange={(e) => setPostalCode(e.target.value)}
+                    maxLength={10}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                </div>
+                <div className="space-y-1 flex-1">
+                  <label htmlFor="delivery-city" className="text-xs font-semibold text-slate-500">Ville</label>
+                  <input id="delivery-city" type="text" placeholder="Paris *" value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                </div>
               </div>
             </div>
           )}

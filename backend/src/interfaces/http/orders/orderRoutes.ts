@@ -70,8 +70,8 @@ export function createOrderRoutes(
 
     const result = await createOrderUseCase.execute({
       userId:          userId,
-      clientLat:       body.clientLat,
-      clientLng:       body.clientLng,
+      clientLat:       body.clientLat ?? 48.8566,
+      clientLng:       body.clientLng ?? 2.3522,
       paymentMethodId: body.paymentMethodId,
       rawInput: {
         userId,

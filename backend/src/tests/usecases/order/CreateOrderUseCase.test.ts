@@ -16,7 +16,17 @@ describe("CreateOrderUseCase (Clean Architecture Tests)", () => {
     restaurantRepo = new InMemoryRestaurantRepository();
     menuItemRepo   = new InMemoryMenuItemRepository();
     const mockEventStore = { save: async () => {}, findByAggregateId: async () => [] };
-    useCase        = new CreateOrderUseCase(orderRepo, restaurantRepo, menuItemRepo, {} as any, mockEventStore as any);
+    const mockRoutingService = { calculateRoute: async () => ({ distanceKm: 5, durationMin: 15 }) };
+    const mockPaymentMethodRepo = { findAllByUserId: async () => [{ id: "pm_123", isDefault: true }] };
+
+    useCase = new CreateOrderUseCase(
+      orderRepo,
+      restaurantRepo,
+      menuItemRepo,
+      mockPaymentMethodRepo as any,
+      mockRoutingService as any,
+      mockEventStore as any
+    );
   });
 
   it("devrait créer une commande avec un prix total correct et décrémenter le stock", async () => {

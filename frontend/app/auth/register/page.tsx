@@ -30,10 +30,12 @@ function Field({
   label: string; value: string; onChange: (nextValue: string) => void;
   type?: string; placeholder?: string;
 }) {
+  const id = label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={(changeEvent) => onChange(changeEvent.target.value)}
@@ -53,11 +55,13 @@ function PasswordField({
   show: boolean; onToggle: () => void; autoComplete: string;
   hint?: string; mismatch?: boolean;
 }) {
+  const id = label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
       <div className="relative">
         <input
+          id={id}
           type={show ? "text" : "password"}
           value={value}
           onChange={(changeEvent) => onChange(changeEvent.target.value)}

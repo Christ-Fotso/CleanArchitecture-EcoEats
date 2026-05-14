@@ -1,4 +1,4 @@
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import type { PrismaClient } from "@prisma/client";
 import type { IOrderRepository, CreateOrderInput, OrderSummary, OrderDetail, RestaurantOrder, OrderBasicInfo } from "../../application/ports/IOrderRepository.js";
 import { ConfigService } from "../config/ConfigService.js";
 
