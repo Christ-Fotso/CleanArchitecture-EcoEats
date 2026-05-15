@@ -9,17 +9,17 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  console.log("🌱 Seeding EcoEats (mode propre - nettoyage des anciens seeds)...");
+  console.log("🌱 Seeding EcoEats (NETTOYAGE RADICAL par noms)...");
 
-  // Nettoyage ciblé des restaurants de seed pour éviter les doublons sans menus
-  const seedRestoIds = [
-    "seed-resto-bistrot", "seed-resto-sushi", "seed-resto-mahmoud", 
-    "seed-resto-pizza", "seed-resto-ramen"
+  const seedNames = [
+    "Le Bistrot Parisien", "Sushi Sakura", "Chez Mahmoud", 
+    "La Pizzeria Roma", "Tokyo Ramen House"
   ];
 
-  await prisma.menuItem.deleteMany({ where: { category: { restaurant_id: { in: seedRestoIds } } } });
-  await prisma.menuCategory.deleteMany({ where: { restaurant_id: { in: seedRestoIds } } });
-  await prisma.restaurant.deleteMany({ where: { id: { in: seedRestoIds } } });
+  // On supprime TOUT ce qui porte ces noms (même les vieux IDs)
+  await prisma.menuItem.deleteMany({ where: { category: { restaurant: { name: { in: seedNames } } } } });
+  await prisma.menuCategory.deleteMany({ where: { restaurant: { name: { in: seedNames } } } });
+  await prisma.restaurant.deleteMany({ where: { name: { in: seedNames } } });
 
   const passwordHash = await bcrypt.hash("Password123!", 10);
 
