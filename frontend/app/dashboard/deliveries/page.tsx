@@ -198,9 +198,11 @@ export default function DeliveriesPage() {
       }
     } else if (result.status === 409) {
       /* Course déjà prise par un autre livreur → la retirer de la liste */
-      setDeliveries((previousDeliveries) => previousDeliveries.filter((delivery) => delivery.orderId !== orderId));
+      setDeliveries((prev) => prev.filter((d) => d.orderId !== orderId));
       setPageError("Cette course a déjà été prise par un autre livreur.");
       setTimeout(() => setPageError(null), 4000);
+    } else if (result.status === 404 || result.message?.toLowerCase().includes("introuvable")) {
+      router.push("/dashboard/driver/vehicle");
     } else {
       setPageError(result.message ?? "Erreur lors de l'acceptation");
     }

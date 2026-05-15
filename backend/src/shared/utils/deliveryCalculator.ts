@@ -13,7 +13,12 @@ export function haversineDistance(
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
     Math.sin(dLng / 2) * Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  const distance = R * c;
+  
+  // Sécurité : si la distance est > 500km, c'est probablement un bug de coordonnées (0,0)
+  if (distance > 500) return 0;
+  
+  return distance;
 }
 
 function toRad(deg: number): number {
