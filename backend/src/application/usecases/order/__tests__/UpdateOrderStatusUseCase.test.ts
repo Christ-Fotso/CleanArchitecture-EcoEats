@@ -32,27 +32,27 @@ const stubOrder: OrderBasicInfo = {
   restaurantId:      "resto-1",
   restaurantOwnerId: "owner-1",
   clientUserId:      "client-1",
-  status:            "PAID",
+  status:            "created",
 };
 
 describe("UpdateOrderStatusUseCase", () => {
-  it("accepte une transition valide (PAID → ACCEPTED)", async () => {
+  it("accepte une transition valide (created → confirmed)", async () => {
     const useCase = new UpdateOrderStatusUseCase(
       makeOrderRepo(stubOrder),
       makeRestaurantRepo(true),
       makeNotifGateway(),
     );
-    const result = await useCase.execute("order-1", "ACCEPTED", "owner-1");
+    const result = await useCase.execute("order-1", "confirmed", "owner-1");
     expect(result.ok).toBe(true);
   });
 
-  it("refuse une transition invalide (PAID → DELIVERED)", async () => {
+  it("refuse une transition invalide (created → delivered)", async () => {
     const useCase = new UpdateOrderStatusUseCase(
       makeOrderRepo(stubOrder),
       makeRestaurantRepo(true),
       makeNotifGateway(),
     );
-    const result = await useCase.execute("order-1", "DELIVERED", "owner-1");
+    const result = await useCase.execute("order-1", "delivered", "owner-1");
     expect(result.ok).toBe(false);
     expect((result as any).error.code).toBe("INVALID_ORDER_TRANSITION");
   });
@@ -63,7 +63,7 @@ describe("UpdateOrderStatusUseCase", () => {
       makeRestaurantRepo(true),
       makeNotifGateway(),
     );
-    const result = await useCase.execute("inexistant", "ACCEPTED", "owner-1");
+    const result = await useCase.execute("inexistant", "confirmed", "owner-1");
     expect(result.ok).toBe(false);
     expect((result as any).error.code).toBe("ORDER_NOT_FOUND");
   });
@@ -74,7 +74,7 @@ describe("UpdateOrderStatusUseCase", () => {
       makeRestaurantRepo(false),
       makeNotifGateway(),
     );
-    const result = await useCase.execute("order-1", "ACCEPTED", "autre-owner");
+    const result = await useCase.execute("order-1", "confirmed", "autre-owner");
     expect(result.ok).toBe(false);
     expect((result as any).error.code).toBe("UNAUTHORIZED_ORDER_ACCESS");
   });

@@ -3,36 +3,36 @@ import { OrderStatus } from "../value-objects/OrderStatus.js";
 import { InvalidOrderTransitionError } from "../errors/OrderErrors.js";
 
 describe("OrderStatus", () => {
-  it("démarre à PENDING", () => {
-    expect(OrderStatus.initial().value).toBe("PENDING");
+  it("démarre à created", () => {
+    expect(OrderStatus.initial().value).toBe("created");
   });
 
-  it("autorise PENDING → PAID", () => {
-    const status = OrderStatus.initial().transitionTo("PAID");
-    expect(status.value).toBe("PAID");
+  it("autorise created → confirmed", () => {
+    const status = OrderStatus.initial().transitionTo("confirmed");
+    expect(status.value).toBe("confirmed");
   });
 
-  it("autorise PAID → ACCEPTED", () => {
-    const status = OrderStatus.from("PAID").transitionTo("ACCEPTED");
-    expect(status.value).toBe("ACCEPTED");
+  it("autorise confirmed → prepared", () => {
+    const status = OrderStatus.from("confirmed").transitionTo("prepared");
+    expect(status.value).toBe("prepared");
   });
 
-  it("autorise PAID → REFUSED", () => {
-    const status = OrderStatus.from("PAID").transitionTo("REFUSED");
-    expect(status.value).toBe("REFUSED");
+  it("autorise confirmed → cancelled", () => {
+    const status = OrderStatus.from("confirmed").transitionTo("cancelled");
+    expect(status.value).toBe("cancelled");
   });
 
-  it("refuse PENDING → DELIVERED (transition invalide)", () => {
-    expect(() => OrderStatus.initial().transitionTo("DELIVERED"))
+  it("refuse created → delivered (transition invalide)", () => {
+    expect(() => OrderStatus.initial().transitionTo("delivered"))
       .toThrow(InvalidOrderTransitionError);
   });
 
-  it("refuse toute transition depuis DELIVERED (état terminal)", () => {
-    expect(() => OrderStatus.from("DELIVERED").transitionTo("CANCELLED"))
+  it("refuse toute transition depuis delivered (état terminal)", () => {
+    expect(() => OrderStatus.from("delivered").transitionTo("cancelled"))
       .toThrow(InvalidOrderTransitionError);
   });
 
   it("canTransitionTo retourne false sans lever d'exception", () => {
-    expect(OrderStatus.from("DELIVERED").canTransitionTo("CANCELLED")).toBe(false);
+    expect(OrderStatus.from("delivered").canTransitionTo("cancelled")).toBe(false);
   });
 });
