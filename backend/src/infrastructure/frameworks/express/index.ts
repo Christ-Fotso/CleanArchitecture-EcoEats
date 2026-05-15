@@ -67,6 +67,7 @@ import type { ImportMenuCsvUseCase } from "../../../application/usecases/menu/Im
 import { MetricsService } from "../../monitoring/MetricsService.js";
 import { PrismaReviewRepository } from "../../repositories/PrismaReviewRepository.js";
 import { CreateOrderReviewUseCase } from "../../../application/usecases/order/CreateOrderReviewUseCase.js";
+import type { IOrderRepository } from "../../../application/ports/IOrderRepository.js";
 
 export type ExpressFrameworkDependencies = {
   userRepository: IUserRepository;
@@ -122,6 +123,7 @@ export type ExpressFrameworkDependencies = {
   notificationGateway:               INotificationGateway;
   metricsService:                    MetricsService;
   prisma:                            PrismaClient;
+  orderRepository:                   IOrderRepository;
   requireAuthentication: RequestHandler;
   corsOrigin: string | string[];
 };

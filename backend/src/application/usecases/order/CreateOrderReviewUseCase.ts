@@ -46,7 +46,7 @@ export class CreateOrderReviewUseCase
         orderId:          input.orderId,
         userId:           input.userId,
         restaurantId:     order.restaurantId,
-        driverId:         order.driver_id as string | undefined, // Typecast car OrderBasicInfo pourrait ne pas l'avoir
+        driverId:         order.driverId as string | undefined, 
         restaurantRating: input.restaurantRating,
         driverRating:     input.driverRating,
         comment:           input.comment,
@@ -54,8 +54,8 @@ export class CreateOrderReviewUseCase
 
       // Mettre à jour les moyennes de manière asynchrone (pas besoin d'attendre pour répondre au client)
       this.reviewRepository.updateRestaurantRating(order.restaurantId).catch(console.error);
-      if (order.driver_id) {
-        this.reviewRepository.updateDriverRating(order.driver_id).catch(console.error);
+      if (order.driverId) {
+        this.reviewRepository.updateDriverRating(order.driverId).catch(console.error);
       }
 
       return ok(undefined);

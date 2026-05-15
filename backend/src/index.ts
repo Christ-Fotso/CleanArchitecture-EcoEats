@@ -145,6 +145,8 @@ const startServer = async () => {
     /* ── Shared ── */
     notificationGateway,
     metricsService,
+    prisma,
+    orderRepository:                      order.orderRepository,
     corsOrigin:                           env.corsOrigins,
   });
 
