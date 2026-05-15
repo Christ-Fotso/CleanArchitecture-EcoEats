@@ -101,3 +101,16 @@ export const placeOrder = (payload: CreateOrderPayload, accessToken: string) =>
 
 export const getOrders = (accessToken: string) =>
   callAuthJson<OrderDetail[]>("/orders", accessToken);
+
+export const rateOrder = (
+  orderId:          string,
+  restaurantRating: number,
+  driverRating?:    number,
+  comment?:         string,
+  accessToken?:     string,
+) =>
+  callAuthJson<{ message: string }>(`/orders/${orderId}/review`, accessToken!, {
+    method:  "POST",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify({ restaurantRating, driverRating, comment }),
+  });

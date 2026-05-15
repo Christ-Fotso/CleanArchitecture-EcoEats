@@ -38,18 +38,18 @@ export type ActiveDelivery = {
 };
 
 export type EarningRecord = {
-  id:          string;
-  orderId:     string;
-  baseAmount:  number;
-  distanceFee: number;
-  tipAmount:   number;
-  total:       number;
-  earnedAt:    string;
+  id:         string;
+  orderId:    string;
+  baseAmount: number;
+  bonus:      number;
+  tip:        number;
+  total:      number;
+  status:     string;
+  createdAt:  string;
 };
 
 export type DriverWallet = {
-  /** Solde total cumulé (en euros). */
-  balanceEuros: number;
+  balance:      number;
+  totalEarned:  number;
   earnings:     EarningRecord[];
 };
-

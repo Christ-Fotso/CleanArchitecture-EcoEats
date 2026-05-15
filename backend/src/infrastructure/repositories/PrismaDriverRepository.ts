@@ -215,35 +215,42 @@ export class PrismaDriverRepository implements IDriverRepository {
         bonus:       input.distanceFee,
         tip:         input.tipAmount,
         total,
-        status:      "pending",
+        status:      "paid", // On marque direct payé pour le POC
+        paid_at:     new Date(),
       },
     });
     return {
-      id:          record.id,
-      orderId:     record.order_id,
-      baseAmount:  Number(record.base_amount),
-      distanceFee: Number(record.bonus),
-      tipAmount:   Number(record.tip),
-      total:       Number(record.total),
-      earnedAt:    record.paid_at?.toISOString() ?? new Date().toISOString(),
+      id:         record.id,
+      orderId:    record.order_id,
+      baseAmount: Number(record.base_amount),
+      bonus:      Number(record.bonus),
+      tip:        Number(record.tip),
+      total:      Number(record.total),
+      status:     record.status,
+      createdAt:  record.created_at.toISOString(),
     };
   }
 
   async getWallet(driverId: string): Promise<DriverWallet> {
     const records = await this.prismaClient.driverEarning.findMany({
       where:   { driver_id: driverId },
-      orderBy: { paid_at: "desc" },
+      orderBy: { created_at: "desc" },
     });
     const earnings: EarningRecord[] = records.map((r) => ({
-      id:          r.id,
-      orderId:     r.order_id,
-      baseAmount:  Number(r.base_amount),
-      distanceFee: Number(r.bonus),
-      tipAmount:   Number(r.tip),
-      total:       Number(r.total),
-      earnedAt:    r.paid_at?.toISOString() ?? new Date().toISOString(),
+      id:         r.id,
+      orderId:    r.order_id,
+      baseAmount: Number(r.base_amount),
+      bonus:      Number(r.bonus),
+      tip:        Number(r.tip),
+      total:      Number(r.total),
+      status:     r.status,
+      createdAt:  r.created_at.toISOString(),
     }));
-    const balanceEuros = earnings.reduce((sum, e) => sum + e.total, 0);
-    return { balanceEuros, earnings };
+    const balance = earnings.reduce((sum, e) => sum + e.total, 0);
+    return { 
+      balance, 
+      totalEarned: balance, // Pour le moment c'est identique car on ne gère pas les retraits
+      earnings 
+    };
   }
 }

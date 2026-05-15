@@ -81,6 +81,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       include: {
         restaurant:       { select: { id: true, name: true, logo_url: true } },
         delivery_address: { select: { street: true, city: true } },
+        reviews:          { select: { id: true } },
         order_items: {
           include: {
             menu_item: { select: { name: true, description: true, photo_url: true } },
@@ -113,6 +114,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       total:          Number(order.total),
       estimatedAt:    order.estimated_delivery_at.toISOString(),
       createdAt:      order.created_at.toISOString(),
+      hasReview:      order.reviews.length > 0,
     }));
   }
 
@@ -159,7 +161,7 @@ export class PrismaOrderRepository implements IOrderRepository {
   async findById(orderId: string): Promise<OrderBasicInfo | null> {
     const order = await this.prismaClient.order.findUnique({
       where:   { id: orderId },
-      select:  { id: true, restaurant_id: true, user_id: true, status: true, delivery_fee: true,
+      select:  { id: true, restaurant_id: true, user_id: true, status: true, delivery_fee: true, driver_id: true,
                  restaurant: { select: { owner_id: true } } },
     });
     if (!order) return null;
@@ -170,6 +172,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       clientUserId:      order.user_id,
       status:            order.status,
       deliveryFee:       Number(order.delivery_fee),
+      driverId:          order.driver_id,
     };
   }
 

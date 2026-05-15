@@ -2,6 +2,7 @@ import express from "express";
 import type { Express, NextFunction, Request, RequestHandler, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import type { PrismaClient } from "@prisma/client";
 import type { IDocumentRepository } from "../../../application/ports/IDocumentRepository.js";
 import type { IPasswordHasher } from "../../../application/ports/IPasswordHasher.js";
 import type { IPaymentGateway } from "../../../application/ports/IPaymentGateway.js";
@@ -64,6 +65,8 @@ import type { CreateMenuItemOptionUseCase } from "../../../application/usecases/
 import type { ExportMenuCsvUseCase } from "../../../application/usecases/menu/ExportMenuCsvUseCase.js";
 import type { ImportMenuCsvUseCase } from "../../../application/usecases/menu/ImportMenuCsvUseCase.js";
 import { MetricsService } from "../../monitoring/MetricsService.js";
+import { PrismaReviewRepository } from "../../repositories/PrismaReviewRepository.js";
+import { CreateOrderReviewUseCase } from "../../../application/usecases/order/CreateOrderReviewUseCase.js";
 
 export type ExpressFrameworkDependencies = {
   userRepository: IUserRepository;
@@ -166,6 +169,10 @@ export const createExpressApp = (dependencies: ExpressFrameworkDependencies): Ex
   );
   app.use("/documents", createDocumentRoutes(dependencies.documentRepository, dependencies.requireAuthentication, dependencies.notificationGateway));
   app.use("/users",     createUserRoutes(dependencies.userRepository, dependencies.prisma, dependencies.requireAuthentication));
+
+  const reviewRepository = new PrismaReviewRepository(dependencies.prisma);
+  const createOrderReviewUseCase = new CreateOrderReviewUseCase(reviewRepository, dependencies.orderRepository);
+
   app.use(
     "/orders",
     createOrderRoutes(
@@ -174,10 +181,12 @@ export const createExpressApp = (dependencies: ExpressFrameworkDependencies): Ex
       dependencies.getRestaurantOrdersUseCase,
       dependencies.updateOrderStatusUseCase,
       dependencies.getOrderInvoiceUseCase,
+      createOrderReviewUseCase,
       dependencies.paymentMethodRepository,
       dependencies.requireAuthentication,
     ),
   );
+
   app.use(
     "/payment",
     createPaymentRoutes(

@@ -62,6 +62,7 @@ export type OrderDetail = {
   total:             number;
   estimatedAt:       string;
   createdAt:         string;
+  hasReview:         boolean;
 };
 
 export type OrderBasicInfo = {
@@ -71,6 +72,7 @@ export type OrderBasicInfo = {
   clientUserId:      string;
   status:            string;
   deliveryFee:       number;
+  driverId?:         string | null;
 };
 
 export type RestaurantOrderItem = {

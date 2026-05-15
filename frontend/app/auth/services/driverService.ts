@@ -70,3 +70,22 @@ export const pickupDelivery = (orderId: string, accessToken: string) =>
 
 export const completeDelivery = (orderId: string, accessToken: string) =>
   callAuthJson<{ message: string }>(`/driver/deliveries/${orderId}/complete`, accessToken, { method: "POST" });
+
+export type DriverWallet = {
+  id:           string;
+  balance:      number;
+  totalEarned:  number;
+  earnings: Array<{
+    id:         string;
+    orderId:    string;
+    baseAmount: number;
+    bonus:      number;
+    tip:        number;
+    total:      number;
+    status:     string;
+    createdAt:  string;
+  }>;
+};
+
+export const getDriverWallet = (accessToken: string) =>
+  callAuthJson<DriverWallet>("/driver/wallet", accessToken);

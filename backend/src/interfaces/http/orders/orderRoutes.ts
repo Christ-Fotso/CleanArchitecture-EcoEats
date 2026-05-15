@@ -8,7 +8,9 @@ import type { GetRestaurantOrdersUseCase } from "../../../application/usecases/o
 import type { UpdateOrderStatusUseCase } from "../../../application/usecases/order/UpdateOrderStatusUseCase.js";
 import type { GetOrderInvoiceUseCase } from "../../../application/usecases/order/GetOrderInvoiceUseCase.js";
 import { InvoicePresenter } from "../../presenters/InvoicePresenter.js";
+import type { CreateOrderReviewUseCase } from "../../../application/usecases/order/CreateOrderReviewUseCase.js";
 import { domainErrorToStatus } from "../utils/domainErrorToStatus.js";
+import { z } from "zod";
 
 export function createOrderRoutes(
   createOrderUseCase:        CreateOrderUseCase,
@@ -16,10 +18,41 @@ export function createOrderRoutes(
   getRestaurantOrdersUseCase: GetRestaurantOrdersUseCase,
   updateOrderStatusUseCase:  UpdateOrderStatusUseCase,
   getOrderInvoiceUseCase:    GetOrderInvoiceUseCase,
+  createOrderReviewUseCase:  CreateOrderReviewUseCase,
   _paymentMethodRepository:   any,
   requireAuth:               RequestHandler,
 ): Router {
   const router = Router();
+
+  /* ── POST /:orderId/review — Noter la commande + livreur ── */
+  router.post("/:orderId/review", requireAuth, async (request: Request, response: Response) => {
+    const { orderId } = request.params;
+    const parsed = z.object({
+      restaurantRating: z.number().min(1).max(5),
+      driverRating:    z.number().min(1).max(5).optional(),
+      comment:         z.string().optional(),
+    }).safeParse(request.body);
+
+    if (!parsed.success) {
+      response.status(400).json({ message: "Données de notation invalides" });
+      return;
+    }
+
+    const result = await createOrderReviewUseCase.execute({
+      orderId,
+      userId:           request.user!.id,
+      restaurantRating: parsed.data.restaurantRating,
+      driverRating:     parsed.data.driverRating,
+      comment:          parsed.data.comment,
+    });
+
+    if (!result.ok) {
+      response.status(domainErrorToStatus(result.error)).json({ message: result.error.message });
+      return;
+    }
+
+    response.status(201).json({ message: "Merci pour votre avis !" });
+  });
 
   /* ── GET / — Liste des commandes de l'utilisateur connecté ── */
   router.get("/", requireAuth, async (request: Request, response: Response) => {
