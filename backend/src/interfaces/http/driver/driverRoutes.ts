@@ -46,14 +46,19 @@ export function createDriverRoutes(
   });
 
   router.post("/deliveries/:orderId/accept", requireAuth, async (request: Request, response: Response) => {
-    const { orderId } = request.params;
-    if (!orderId) { response.status(400).json({ message: "Identifiant manquant" }); return; }
+    try {
+      const { orderId } = request.params;
+      if (!orderId) { response.status(400).json({ message: "Identifiant manquant" }); return; }
 
-    const result = await acceptDeliveryUseCase.execute(request.user!.id, orderId);
-    if (!result.ok) { response.status(domainErrorToStatus(result.error)).json({ message: result.error.message }); return; }
+      const result = await acceptDeliveryUseCase.execute(request.user!.id, orderId);
+      if (!result.ok) { response.status(domainErrorToStatus(result.error)).json({ message: result.error.message }); return; }
 
-    notificationGateway.broadcastToRoom(DRIVERS_ONLINE_ROOM, "delivery:taken", { orderId });
-    response.status(204).send();
+      notificationGateway.broadcastToRoom(DRIVERS_ONLINE_ROOM, "delivery:taken", { orderId });
+      response.status(204).send();
+    } catch (error: any) {
+      console.error("[POST /driver/deliveries/accept] Crash:", error);
+      response.status(500).json({ message: "Erreur technique lors de l'acceptation: " + (error?.message || "Inconnue") });
+    }
   });
 
   /* ── GET /me — Profil + statut online du livreur connecté ── */

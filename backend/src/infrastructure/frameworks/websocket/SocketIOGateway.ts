@@ -11,10 +11,16 @@ export class SocketIOGateway implements INotificationGateway {
   constructor(private readonly io: SocketIOServer) {}
 
   notifyUser(userId: string, payload: NotificationPayload): void {
-    this.io.to(`user:${userId}`).emit("notification", payload);
+    if (!this.io) return;
+    try {
+      this.io.to(`user:${userId}`).emit("notification", payload);
+    } catch (e) { console.error("WS Notify Error:", e); }
   }
 
   broadcastToRoom(room: string, event: string, data: unknown): void {
-    this.io.to(room).emit(event, data);
+    if (!this.io) return;
+    try {
+      this.io.to(room).emit(event, data);
+    } catch (e) { console.error("WS Broadcast Error:", e); }
   }
 }
