@@ -26,7 +26,7 @@ const USER_KEY   = "ecoeats_user";
 const persist = (tokens: AuthTokens, user: User) => {
   localStorage.setItem(TOKENS_KEY, JSON.stringify(tokens));
   localStorage.setItem(USER_KEY, JSON.stringify(user));
-  document.cookie = "isLoggedIn=1; path=/; SameSite=Lax";
+  document.cookie = `isLoggedIn=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 };
 
 const clear = () => {
