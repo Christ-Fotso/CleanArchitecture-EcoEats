@@ -14,8 +14,10 @@ export type CreateOrderPayload = {
   deliveryStreet:     string;
   deliveryPostalCode: string;
   deliveryCity:       string;
+  clientLat?:         number;
+  clientLng?:         number;
   items:              OrderItemPayload[];
-  deliveryFee:        number;
+  tipAmount?:         number;
   paymentMethodId?:   string;
 };
 

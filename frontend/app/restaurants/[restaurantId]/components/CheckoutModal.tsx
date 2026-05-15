@@ -96,15 +96,25 @@ export function CheckoutModal({
     setPlacing(true);
     setFormError(null);
 
-    const result = await callWithRefresh((token) =>
-      placeOrder({
+    const result = await callWithRefresh((token) => {
+      // Récupérer les coordonnées GPS stockées
+      let clientLat: number | undefined;
+      let clientLng: number | undefined;
+      try {
+        const stored = sessionStorage.getItem("userCoords");
+        if (stored) { const c = JSON.parse(stored); clientLat = c.lat; clientLng = c.lng; }
+      } catch { /* */ }
+
+      return placeOrder({
         restaurantId:       restaurant.id,
         deliveryStreet:     street.trim(),
         deliveryPostalCode: postalCode.trim(),
         deliveryCity:       city.trim(),
-        deliveryFee:        restaurant.deliveryFee,
+        clientLat,
+        clientLng,
+        tipAmount:          0,
         paymentMethodId:    selectedCardId || undefined,
-        items:          cart.map((entry) => ({
+        items: cart.map((entry) => ({
           menuItemId:     entry.item.id,
           name:           entry.item.name,
           unitPrice:      entry.item.price + entry.selectedOptions.reduce((sum, option) => sum + option.extraPrice, 0),
@@ -112,8 +122,8 @@ export function CheckoutModal({
           notes:          entry.notes || undefined,
           optionValueIds: entry.selectedOptions.map((option) => option.valueId),
         })),
-      }, token)
-    );
+      }, token);
+    });
 
     if (result.ok && result.data) {
       onSuccess(result.data);
