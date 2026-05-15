@@ -1,17 +1,17 @@
 import { z } from "zod";
 
 export const orderItemSchema = z.object({
-  menuItemId:       z.string().uuid(),
+  menuItemId:       z.string().min(1),
   name:             z.string().min(1),
   unitPrice:        z.number().min(0),
   quantity:         z.number().int().positive(),
   notes:            z.string().optional(),
-  optionValueIds:   z.array(z.string().uuid()).optional(),
+  optionValueIds:   z.array(z.string().min(1)).optional(),
 });
 
 export const createOrderSchema = z.object({
   body: z.object({
-    restaurantId:     z.string().uuid(),
+    restaurantId:     z.string().min(1),
     deliveryStreet:   z.string().min(3),
     deliveryPostalCode: z.string().min(1).optional(),
     deliveryCity:     z.string().min(1),
@@ -19,7 +19,7 @@ export const createOrderSchema = z.object({
     clientLng:        z.number().optional(),
     items:            z.array(orderItemSchema).min(1),
     tipAmount:        z.number().min(0).optional(),
-    paymentMethodId:  z.string().uuid().optional(),
+    paymentMethodId:  z.string().min(1).optional(),
   }),
 });
 
