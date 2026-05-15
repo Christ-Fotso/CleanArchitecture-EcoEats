@@ -197,17 +197,22 @@ export default function DeliveriesPage() {
         setIsOnline(false);
       }
     } else if (result.status === 409) {
-      /* Course déjà prise par un autre livreur → la retirer de la liste */
+      /* Course déjà prise par un autre livreur */
       setDeliveries((prev) => prev.filter((d) => d.orderId !== orderId));
-      setPageError("Cette course a déjà été prise par un autre livreur.");
-      setTimeout(() => setPageError(null), 4000);
-    } else if (result.status === 403) {
-      /* Livreur non vérifié → Redirection vers les documents */
-      router.push("/dashboard/profile/documents");
-    } else if (result.status === 404 || result.message?.toLowerCase().includes("introuvable")) {
-      router.push("/dashboard/driver/vehicle");
+      setPageError(result.message ?? "Cette course a déjà été prise.");
+      setTimeout(() => setPageError(null), 5000);
+    } else if (result.status === 403 || result.message?.toLowerCase().includes("validé") || result.message?.toLowerCase().includes("document")) {
+      /* Livreur non vérifié ou documents manquants */
+      setPageError("Vérification requise : Redirection vers vos documents...");
+      setTimeout(() => router.push("/dashboard/profile/documents"), 2000);
+    } else if (result.status === 404 || result.message?.toLowerCase().includes("introuvable") || result.message?.toLowerCase().includes("véhicule")) {
+      /* Profil ou véhicule manquant */
+      setPageError("Configuration requise : Redirection vers votre véhicule...");
+      setTimeout(() => router.push("/dashboard/driver/vehicle"), 2000);
     } else {
-      setPageError(result.message ?? "Erreur lors de l'acceptation");
+      /* Autre erreur (ex: 500 ou 400) */
+      setPageError(result.message ?? "Acceptation impossible : vérifiez votre connexion ou vos documents.");
+      setTimeout(() => setPageError(null), 5000);
     }
     setAcceptingId(null);
   };
@@ -479,7 +484,7 @@ export default function DeliveriesPage() {
                   </div>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="bg-orange-50 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-100">
-                      🛣️ {delivery.distanceKm} km
+                      🛣️ {delivery.distanceKm > 0 ? `${delivery.distanceKm} km` : "Distance à confirmer"}
                     </span>
                     <span className="text-[10px] text-slate-400 font-medium">
                       Total commande: {delivery.total.toFixed(2)} €
