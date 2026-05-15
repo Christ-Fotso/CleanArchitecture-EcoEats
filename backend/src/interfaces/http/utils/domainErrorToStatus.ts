@@ -36,7 +36,8 @@ export const domainErrorToStatus = (error: DomainError): number => {
     case "CART_DIFFERENT_RESTAURANT":
     case "CART_EMPTY":
     case "OUT_OF_STOCK":
-    case "INVALID_ORDER_TRANSITION":  return 422;
+    case "INVALID_ORDER_TRANSITION":
+    case "DELIVERY_CAPACITY_EXCEEDED": return 422;
     default:                          return 400;
   }
 };

@@ -199,7 +199,11 @@ export default function DeliveriesPage() {
     } else if (result.status === 409) {
       /* Course déjà prise par un autre livreur */
       setDeliveries((prev) => prev.filter((d) => d.orderId !== orderId));
-      setPageError(result.message ?? "Cette course a déjà été prise.");
+      setPageError(result.message ?? "Cette course a déjà été prise par un autre livreur.");
+      setTimeout(() => setPageError(null), 5000);
+    } else if (result.status === 422) {
+      /* Erreur de règle métier (Capacité, etc.) */
+      setPageError(result.message ?? "Action impossible : vous avez peut-être déjà une livraison en cours.");
       setTimeout(() => setPageError(null), 5000);
     } else if (result.status === 403 || result.message?.toLowerCase().includes("validé") || result.message?.toLowerCase().includes("document")) {
       /* Livreur non vérifié ou documents manquants */
