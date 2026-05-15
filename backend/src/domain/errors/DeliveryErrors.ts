@@ -24,3 +24,9 @@ export class DeliveryNotFoundError extends DomainError {
   readonly code = "DELIVERY_NOT_FOUND";
   constructor() { super("Livraison introuvable."); }
 }
+
+export class DriverNotVerifiedError extends DomainError {
+  readonly code = "DRIVER_NOT_VERIFIED";
+  constructor() { super("Votre compte n'est pas encore validé. Veuillez renseigner vos documents."); }
+}
+

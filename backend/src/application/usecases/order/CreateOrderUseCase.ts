@@ -121,6 +121,8 @@ export class CreateOrderUseCase {
       computedSubtotal: order.itemsTotal.toEuros(),
       computedTotal:    order.total.toEuros(),
       orderId:          order.id,
+      clientLat:       input.clientLat,
+      clientLng:       input.clientLng,
     });
 
     /* ── Décrémentation du stock ── */

@@ -31,7 +31,8 @@ export const domainErrorToStatus = (error: DomainError): number => {
     case "MAX_PAYMENT_METHODS_REACHED":
     case "PAYMENT_INTENT_CREATION_FAILED":
     case "SETUP_INTENT_CREATION_FAILED": return 422;
-    case "UNAUTHORIZED_ORDER_ACTION": return 403;
+    case "UNAUTHORIZED_ORDER_ACTION":
+    case "DRIVER_NOT_VERIFIED":       return 403;
     case "CART_DIFFERENT_RESTAURANT":
     case "CART_EMPTY":
     case "OUT_OF_STOCK":

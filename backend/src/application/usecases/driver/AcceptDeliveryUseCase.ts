@@ -16,6 +16,8 @@ export { DeliveryAlreadyTakenError };
  *  - Un livreur Expert peut en cumuler DEUX, à condition qu'elles viennent
  *    du MÊME restaurant.
  */
+import { DriverNotVerifiedError } from "../../../domain/errors/DeliveryErrors.js";
+
 export class AcceptDeliveryUseCase {
   constructor(
     private readonly driverRepository:    IDriverRepository,
@@ -26,9 +28,13 @@ export class AcceptDeliveryUseCase {
   async execute(
     userId:  string,
     orderId: string,
-  ): Promise<Result<void, DriverNotFoundError | DeliveryAlreadyTakenError | DeliveryCapacityExceededError>> {
+  ): Promise<Result<void, DriverNotFoundError | DriverNotVerifiedError | DeliveryAlreadyTakenError | DeliveryCapacityExceededError>> {
     const driver = await this.driverRepository.findByUserId(userId);
     if (!driver) return failure(new DriverNotFoundError());
+
+    if (!driver.isVerified) {
+      return failure(new DriverNotVerifiedError());
+    }
 
     const targetOrder = await this.orderRepository.findById(orderId);
     if (!targetOrder) return failure(new DeliveryAlreadyTakenError());

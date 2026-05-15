@@ -16,6 +16,8 @@ export type CreateOrderInput = {
   deliveryFee:      number;
   tipAmount?:       number;
   paymentMethodId:  string;
+  clientLat?:       number;
+  clientLng?:       number;
   /** Valeurs calculées par l'entité Order du domaine (non recalculées en infra). */
   orderId?:          string;
   computedSubtotal?: number;

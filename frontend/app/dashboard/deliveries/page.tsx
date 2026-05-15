@@ -201,6 +201,9 @@ export default function DeliveriesPage() {
       setDeliveries((prev) => prev.filter((d) => d.orderId !== orderId));
       setPageError("Cette course a déjà été prise par un autre livreur.");
       setTimeout(() => setPageError(null), 4000);
+    } else if (result.status === 403) {
+      /* Livreur non vérifié → Redirection vers les documents */
+      router.push("/dashboard/profile/documents");
     } else if (result.status === 404 || result.message?.toLowerCase().includes("introuvable")) {
       router.push("/dashboard/driver/vehicle");
     } else {

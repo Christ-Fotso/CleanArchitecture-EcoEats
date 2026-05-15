@@ -20,8 +20,8 @@ export class PrismaOrderRepository implements IOrderRepository {
         label:      "Commande",
         street:     input.deliveryStreet,
         city:       input.deliveryCity,
-        lat:        0,
-        lng:        0,
+        lat:        input.clientLat ?? 0,
+        lng:        input.clientLng ?? 0,
         is_default: false,
       },
     });
