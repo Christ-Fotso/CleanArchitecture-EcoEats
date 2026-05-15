@@ -87,7 +87,7 @@ services:
       REDIS_PORT: 6379
       PORT: 3001
       SKIP_RATE_LIMIT: ${SKIP_RATE_LIMIT}
-    command: sh -c "npx prisma db push && node dist/index.js"
+    command: sh -c "npx prisma db push && npx prisma db seed && node dist/index.js"
     networks:
       - ecoeats_net
 
