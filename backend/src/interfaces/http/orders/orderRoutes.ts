@@ -26,9 +26,9 @@ export function createOrderRoutes(
     try {
       const result = await getUserOrdersUseCase.execute(request.user!.id);
       response.status(200).json(result.value);
-    } catch (error) {
+    } catch (error: any) {
       console.error("[GET /orders]", error);
-      response.status(500).json({ message: "Erreur lors de la récupération des commandes" });
+      response.status(500).json({ message: "Erreur lors de la récupération des commandes: " + (error?.message || String(error)) });
     }
   });
 
@@ -37,7 +37,7 @@ export function createOrderRoutes(
     try {
       const orders = await getRestaurantOrdersUseCase.execute(request.user!.id);
       response.status(200).json(orders);
-    } catch (error) {
+    } catch (error: any) {
       console.error("[GET /orders/restaurant]", error);
       response.status(500).json({ message: "Erreur lors de la récupération des commandes" });
     }
