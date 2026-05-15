@@ -19,7 +19,7 @@ async function main() {
   // On supprime dans l'ordre correct pour respecter les contraintes FK :
   // 1. D'abord les OrderItems qui référencent les MenuItems des seed restaurants
   await prisma.orderItem.deleteMany({
-    where: { menuItem: { category: { restaurant: { name: { in: seedNames } } } } },
+    where: { menu_item: { category: { restaurant: { name: { in: seedNames } } } } },
   });
   // 2. Ensuite les Orders des seed restaurants (référencent les restaurants)
   await prisma.order.deleteMany({
