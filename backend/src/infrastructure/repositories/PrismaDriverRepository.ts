@@ -62,22 +62,43 @@ export class PrismaDriverRepository implements IDriverRepository {
       where: { status: { in: ["confirmed", "prepared"] }, driver_id: null },
       orderBy: { created_at: "asc" },
       include: {
-        restaurant: { select: { name: true, address: true } },
-        delivery_address: { select: { street: true, label: true } },
-        order_items: { select: { id: true } },
+        restaurant:       { select: { name: true, address: true, lat: true, lng: true } },
+        delivery_address: { select: { street: true, label: true, lat: true, lng: true } },
+        order_items:      { select: { id: true } },
       },
     });
 
-    return orders.map((order) => ({
-      orderId:          order.id,
-      restaurantName:   order.restaurant.name,
-      restaurantAddress: order.restaurant.address,
-      deliveryAddress:  `${order.delivery_address.street} — ${order.delivery_address.label}`,
-      itemCount:        order.order_items.length,
-      total:            Number(order.total),
-      estimatedAt:      order.estimated_delivery_at.toISOString(),
-      createdAt:        order.created_at.toISOString(),
-    }));
+    return orders.map((order) => {
+      const distance = this.calculateDistance(
+        order.restaurant.lat, order.restaurant.lng,
+        order.delivery_address.lat, order.delivery_address.lng
+      );
+
+      return {
+        orderId:           order.id,
+        restaurantName:    order.restaurant.name,
+        restaurantAddress: order.restaurant.address,
+        deliveryAddress:   `${order.delivery_address.street} — ${order.delivery_address.label}`,
+        itemCount:         order.order_items.length,
+        total:             Number(order.total),
+        deliveryFee:       Number(order.delivery_fee),
+        distanceKm:        Number(distance.toFixed(1)),
+        estimatedAt:       order.estimated_delivery_at.toISOString(),
+        createdAt:         order.created_at.toISOString(),
+      };
+    });
+  }
+
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Rayon de la Terre en km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   }
 
   async createProfile(input: CreateDriverProfileInput): Promise<DriverProfile> {
@@ -115,13 +136,17 @@ export class PrismaDriverRepository implements IDriverRepository {
         status:    { notIn: ["delivered", "cancelled"] },
       },
       include: {
-        restaurant:       { select: { name: true, address: true } },
-        delivery_address: { select: { street: true, city: true } },
+        restaurant:       { select: { name: true, address: true, lat: true, lng: true } },
+        delivery_address: { select: { street: true, city: true, lat: true, lng: true } },
         user:             { select: { name: true } },
         order_items:      { select: { id: true } },
       },
     });
     if (!order) return null;
+
+    const distance = order.delivery_address 
+      ? this.calculateDistance(order.restaurant.lat, order.restaurant.lng, order.delivery_address.lat, order.delivery_address.lng)
+      : 0;
 
     return {
       orderId:           order.id,
@@ -132,6 +157,8 @@ export class PrismaDriverRepository implements IDriverRepository {
       deliveryCity:      order.delivery_address?.city   ?? "",
       itemCount:         order.order_items.length,
       total:             Number(order.total),
+      deliveryFee:       Number(order.delivery_fee),
+      distanceKm:        Number(distance.toFixed(1)),
       estimatedAt:       order.estimated_delivery_at.toISOString(),
       orderStatus:       order.status,
     };

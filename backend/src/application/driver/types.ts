@@ -16,6 +16,8 @@ export type AvailableDelivery = {
   deliveryAddress:   string;
   itemCount:         number;
   total:             number;
+  deliveryFee:       number;
+  distanceKm:        number;
   estimatedAt:       string;
   createdAt:         string;
 };
@@ -29,6 +31,8 @@ export type ActiveDelivery = {
   deliveryCity:      string;
   itemCount:         number;
   total:             number;
+  deliveryFee:       number;
+  distanceKm:        number;
   estimatedAt:       string;
   orderStatus:       string;
 };
