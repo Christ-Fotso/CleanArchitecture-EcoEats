@@ -16,9 +16,20 @@ async function main() {
     "La Pizzeria Roma", "Tokyo Ramen House"
   ];
 
-  // On supprime TOUT ce qui porte ces noms (même les vieux IDs)
+  // On supprime dans l'ordre correct pour respecter les contraintes FK :
+  // 1. D'abord les OrderItems qui référencent les MenuItems des seed restaurants
+  await prisma.orderItem.deleteMany({
+    where: { menuItem: { category: { restaurant: { name: { in: seedNames } } } } },
+  });
+  // 2. Ensuite les Orders des seed restaurants (référencent les restaurants)
+  await prisma.order.deleteMany({
+    where: { restaurant: { name: { in: seedNames } } },
+  });
+  // 3. Puis les MenuItems
   await prisma.menuItem.deleteMany({ where: { category: { restaurant: { name: { in: seedNames } } } } });
+  // 4. Les MenuCategories
   await prisma.menuCategory.deleteMany({ where: { restaurant: { name: { in: seedNames } } } });
+  // 5. Enfin les Restaurants
   await prisma.restaurant.deleteMany({ where: { name: { in: seedNames } } });
 
   const passwordHash = await bcrypt.hash("Password123!", 10);

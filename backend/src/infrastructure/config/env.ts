@@ -26,7 +26,7 @@ export const env = {
   jwtRefreshSecret:    requireEnv("JWT_REFRESH_SECRET"),
   databaseUrl:         requireEnv("DATABASE_URL"),
   stripeSecretKey:     requireEnv("STRIPE_SECRET_KEY"),
-  stripeWebhookSecret: requireEnv("STRIPE_WEBHOOK_SECRET"),
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
   httpFramework:       resolveHttpFramework(),
   corsOrigins:         resolveCorsOrigins(),
   port:                process.env.PORT ?? "3001",
