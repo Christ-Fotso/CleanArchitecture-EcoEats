@@ -29,6 +29,8 @@ export function ClientDashboard({ userName }: { userName: string }) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          // Stocker les coords pour que la page restaurant puisse les utiliser
+          try { sessionStorage.setItem("userCoords", JSON.stringify(coords)); } catch { /* */ }
           setDeliveryInfo("basé sur votre position");
           getActiveRestaurants(coords).then((res) => {
             if (res.ok && res.data) setRestaurants(res.data);

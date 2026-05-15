@@ -109,7 +109,24 @@ export function createRestaurantRoutes(
     if (!id) { response.status(400).json({ message: "Identifiant manquant" }); return; }
     const restaurant = await restaurantRepository.findById(id);
     if (!restaurant) { response.status(404).json({ message: "Restaurant introuvable" }); return; }
-    response.json(RestaurantPresenter.toDto(restaurant));
+
+    const dto = RestaurantPresenter.toDto(restaurant);
+
+    // Calcul dynamique si coordonnées fournies
+    const clientLat = parseFloat(request.query.lat as string);
+    const clientLng = parseFloat(request.query.lng as string);
+    if (!isNaN(clientLat) && !isNaN(clientLng) && dto.lat && dto.lng) {
+      const dx = clientLat - dto.lat;
+      const dy = (clientLng - dto.lng) * Math.cos((clientLat * Math.PI) / 180);
+      const distanceKm = Math.sqrt(dx * dx + dy * dy) * 111;
+      const rawFee = 1.18 + distanceKm * 0.67 + 0.05;
+      const deliveryFee = Math.min(Math.max(rawFee, 1.5), 9.5);
+      const prepTimeMin = Math.round(restaurant.prepTimeMin + distanceKm * 4.2 + 3);
+      response.json({ ...dto, deliveryFee: Math.round(deliveryFee * 100) / 100, prepTimeMin, distanceKm: Math.round(distanceKm * 10) / 10 });
+      return;
+    }
+
+    response.json(dto);
   });
 
   router.get("/", requireAuth, async (request: Request, response: Response) => {

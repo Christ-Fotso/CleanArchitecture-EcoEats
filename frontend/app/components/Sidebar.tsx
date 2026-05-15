@@ -230,24 +230,22 @@ function DomicileSection() {
                 onChange={(e) => setFormStreet(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
-              <div className="flex gap-1.5">
-                <input
-                  type="text"
-                  placeholder="Code postal *"
-                  value={formPostalCode}
-                  onChange={(e) => setFormPostalCode(e.target.value)}
-                  maxLength={10}
-                  className="w-24 rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                />
-                <input
-                  type="text"
-                  placeholder="Ville *"
-                  value={formCity}
-                  onChange={(e) => setFormCity(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                  className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="Code postal *"
+                value={formPostalCode}
+                onChange={(e) => setFormPostalCode(e.target.value)}
+                maxLength={10}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
+              <input
+                type="text"
+                placeholder="Ville *"
+                value={formCity}
+                onChange={(e) => setFormCity(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
+              />
               <div className="flex gap-2">
                 <button
                   type="button"

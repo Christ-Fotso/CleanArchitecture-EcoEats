@@ -110,7 +110,13 @@ export default function Header({ onMenuClick }: { onMenuClick: () => void }) {
           </Link>
         )}
 
-        <h1 className="text-lg font-black text-slate-900">{title}</h1>
+        {title === "EcoEats" ? (
+          <Link href="/dashboard" className="text-lg font-black text-slate-900 hover:text-orange-600 transition">
+            {title}
+          </Link>
+        ) : (
+          <h1 className="text-lg font-black text-slate-900">{title}</h1>
+        )}
       </div>
 
       {/* ── Droite : panier + cloche + avatar + déconnexion ── */}

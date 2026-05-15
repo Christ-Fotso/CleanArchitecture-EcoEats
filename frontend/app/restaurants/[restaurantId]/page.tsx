@@ -31,8 +31,18 @@ export default function PublicRestaurantMenuPage({ params }: Props) {
   const categoryRefs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
+    // Récupérer les coords GPS stockées par le dashboard (sessionStorage)
+    let coordsParam = "";
+    try {
+      const stored = sessionStorage.getItem("userCoords");
+      if (stored) {
+        const { lat, lng } = JSON.parse(stored);
+        coordsParam = `?lat=${lat}&lng=${lng}`;
+      }
+    } catch { /* sessionStorage non disponible */ }
+
     Promise.all([
-      callJson<RestaurantResponseDto>(`/restaurants/${restaurantId}/public`),
+      callJson<RestaurantResponseDto>(`/restaurants/${restaurantId}/public${coordsParam}`),
       getRestaurantMenu(restaurantId),
     ]).then(([restaurantResult, menuResult]) => {
       if (restaurantResult.ok && restaurantResult.data) setRestaurant(restaurantResult.data);
