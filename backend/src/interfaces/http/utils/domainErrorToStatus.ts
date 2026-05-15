@@ -19,7 +19,8 @@ export const domainErrorToStatus = (error: DomainError): number => {
     case "DOCUMENT_NOT_FOUND":
     case "MENU_CATEGORY_NOT_FOUND":
     case "MENU_ITEM_NOT_FOUND":
-    case "MENU_ITEM_OPTION_NOT_FOUND": return 404;
+    case "MENU_ITEM_OPTION_NOT_FOUND":
+    case "DRIVER_NOT_FOUND":           return 404;
     case "RESTAURANT_NOT_OWNED":
     case "MENU_CATEGORY_NOT_OWNED":
     case "MENU_ITEM_NOT_OWNED":

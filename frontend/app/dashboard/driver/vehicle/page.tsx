@@ -26,13 +26,16 @@ export default function VehiclePage() {
 
   useEffect(() => {
     if (authLoading) return;
+    let cancelled = false;
     void (async () => {
+      setLoading(true);
       const result = await callWithRefresh((token) => getDriverProfile(token));
-      if (result.ok && result.data) {
+      if (!cancelled && result.ok && result.data) {
         setTransport(result.data.transportType);
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, [authLoading]);
 
   const handleSave = async () => {
@@ -92,7 +95,12 @@ export default function VehiclePage() {
               }`}
             >
               <span className="text-2xl">{TRANSPORT_LABELS[type].split(" ")[0]}</span>
-              <span className="text-sm font-bold text-slate-900">{TRANSPORT_LABELS[type].split(" ")[1]}</span>
+              <div className="flex-1">
+                <span className="text-sm font-bold text-slate-900">{TRANSPORT_LABELS[type].split(" ")[1]}</span>
+                {transport === type && !saving && (
+                  <p className="text-[10px] text-orange-600 font-bold uppercase tracking-tighter">Moyen actuel</p>
+                )}
+              </div>
               <div className={`ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                 transport === type ? "border-orange-500 bg-orange-500" : "border-slate-200"
               }`}>
