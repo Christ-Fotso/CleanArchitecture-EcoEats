@@ -47,7 +47,7 @@ export class PrismaDriverRepository implements IDriverRepository {
     const activeOrders = await this.prismaClient.order.findMany({
       where: {
         driver_id: driverId,
-        status:    { notIn: ["delivered", "cancelled", "refused"] },
+        status:    { notIn: ["delivered", "cancelled"] },
       },
       select: { restaurant_id: true },
     });
