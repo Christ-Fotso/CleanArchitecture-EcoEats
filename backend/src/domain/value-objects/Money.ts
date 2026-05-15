@@ -34,6 +34,18 @@ export class Money {
     return this.cents > other.cents;
   }
 
+  isLessThan(other: Money): boolean {
+    return this.cents < other.cents;
+  }
+
+  isGreaterThanOrEqual(other: Money): boolean {
+    return this.cents >= other.cents;
+  }
+
+  isLessThanOrEqual(other: Money): boolean {
+    return this.cents <= other.cents;
+  }
+
   toEuros(): number {
     return this.cents / 100;
   }

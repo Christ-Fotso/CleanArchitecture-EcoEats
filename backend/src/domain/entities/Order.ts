@@ -70,9 +70,9 @@ export class Order {
     const minFee = Money.fromEuros(0.50);
     const maxFee = Money.fromEuros(3.00);
     
-    if (rawServiceFee.lessThan(minFee)) {
+    if (rawServiceFee.isLessThan(minFee)) {
       this.serviceFee = minFee;
-    } else if (rawServiceFee.greaterThan(maxFee)) {
+    } else if (rawServiceFee.isGreaterThan(maxFee)) {
       this.serviceFee = maxFee;
     } else {
       this.serviceFee = rawServiceFee;
