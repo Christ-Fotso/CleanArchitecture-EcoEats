@@ -65,31 +65,36 @@ export function createOrderRoutes(
 
   /* ── POST / — Passer une commande ── */
   router.post("/", requireAuth, validate(createOrderSchema), async (request: Request, response: Response) => {
-    const userId = request.user!.id;
-    const { body } = request;
+    try {
+      const userId = request.user!.id;
+      const { body } = request;
 
-    const result = await createOrderUseCase.execute({
-      userId:          userId,
-      clientLat:       body.clientLat ?? 48.8566,
-      clientLng:       body.clientLng ?? 2.3522,
-      paymentMethodId: body.paymentMethodId,
-      rawInput: {
-        userId,
-        restaurantId:   body.restaurantId,
-        deliveryStreet: body.deliveryStreet,
-        deliveryCity:   body.deliveryCity,
-        items:          body.items,
-        deliveryFee:    0,
-        tipAmount:      body.tipAmount,
+      const result = await createOrderUseCase.execute({
+        userId:          userId,
+        clientLat:       body.clientLat ?? 48.8566,
+        clientLng:       body.clientLng ?? 2.3522,
         paymentMethodId: body.paymentMethodId,
-      },
-    });
+        rawInput: {
+          userId,
+          restaurantId:   body.restaurantId,
+          deliveryStreet: body.deliveryStreet,
+          deliveryCity:   body.deliveryCity,
+          items:          body.items,
+          deliveryFee:    0,
+          tipAmount:      body.tipAmount,
+          paymentMethodId: body.paymentMethodId,
+        },
+      });
 
-    if (!result.ok) {
-      response.status(422).json({ message: result.error.message });
-      return;
+      if (!result.ok) {
+        response.status(422).json({ message: result.error.message });
+        return;
+      }
+      response.status(201).json(result.value);
+    } catch (error: any) {
+      console.error("[POST /orders] Exception:", error);
+      response.status(500).json({ message: "Erreur serveur: " + (error?.message || String(error)) });
     }
-    response.status(201).json(result.value);
   });
 
   /* ── GET /:orderId/invoice — Facture détaillée ── */
