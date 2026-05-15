@@ -251,6 +251,7 @@ model Order {
     status                OrderStatus
     subtotal              Decimal
     delivery_fee          Decimal
+    service_fee           Decimal              @default(0)
     taxes                 Decimal
     tip_amount            Decimal
     total                 Decimal

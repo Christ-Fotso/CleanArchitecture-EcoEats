@@ -25,7 +25,16 @@ export class PrismaRestaurantRepository implements IRestaurantRepository {
 
   async findAllActive(): Promise<Restaurant[]> {
     const records = await this.prismaClient.restaurant.findMany({
-      where:   { is_active: true },
+      where: {
+        is_active: true,
+        owner: {
+          AND: [
+            { documents: { some: { type: "kbis", status: "approved" } } },
+            { documents: { some: { type: "id_card", status: "approved" } } },
+            { documents: { some: { type: "food_hygiene", status: "approved" } } },
+          ],
+        },
+      },
       select:  RESTAURANT_SELECT,
       orderBy: { rating_avg: "desc" },
     });

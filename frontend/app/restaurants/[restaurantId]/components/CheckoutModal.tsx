@@ -54,7 +54,8 @@ export function CheckoutModal({
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
   const [placing,        setPlacing]        = useState(false);
 
-  const total = cartTotal + restaurant.deliveryFee;
+  const serviceFee = Math.min(Math.max(cartTotal * 0.10, 0.50), 3.00);
+  const total = cartTotal + restaurant.deliveryFee + serviceFee;
 
   /* ── Chargement des cartes à l'entrée de l'étape paiement ── */
   useEffect(() => {
@@ -179,6 +180,10 @@ export function CheckoutModal({
             <div className="border-t border-slate-200 pt-2 flex justify-between text-sm">
               <span className="text-slate-500">Livraison</span>
               <span>{restaurant.deliveryFee === 0 ? "Offerte" : `${restaurant.deliveryFee.toFixed(2)} €`}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-500">Frais de service</span>
+              <span>{serviceFee.toFixed(2)} €</span>
             </div>
             <div className="flex justify-between font-black">
               <span>Total</span>

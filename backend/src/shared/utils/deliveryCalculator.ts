@@ -32,16 +32,23 @@ function toRad(deg: number): number {
  * - Coût au km : 0.67 €
  * - Frais de service (estimés) : 0.05 €
  */
+/**
+ * Calcule les frais de service de la plateforme.
+ * Basé sur 10% du sous-total, avec un minimum de 0.50€ et un maximum de 3.00€.
+ */
+export function calculateServiceFee(subtotal: number): number {
+  const percentage = 0.10;
+  const rawFee = subtotal * percentage;
+  return Math.min(Math.max(rawFee, 0.50), 3.00);
+}
+
 export function calculateDeliveryFee(distanceKm: number): number {
-  const base = 1.50;  // Base fixe
-  const perKm = 0.50; // Prix au km
-  
-  const rawFee = base + (distanceKm * perKm);
-  
-  // On plafonne à 45.00€ pour les distances extrêmes (ex: 80km+)
-  const finalFee = Math.min(45.00, Math.max(1.85, rawFee));
-  
-  return Math.round(finalFee * 100) / 100;
+  const BASE_FEE = 1.50;
+  const PER_KM_FEE = 0.50;
+  const MAX_FEE = 45.00;
+
+  const fee = BASE_FEE + distanceKm * PER_KM_FEE;
+  return Math.min(fee, MAX_FEE);
 }
 
 /**

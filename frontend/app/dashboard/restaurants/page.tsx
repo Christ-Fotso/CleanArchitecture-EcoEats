@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "../../auth/context/AuthContext";
+import { Toggle } from "../components/Toggle";
 import { getMyDocuments } from "../../auth/services/documentService";
 import type { DocumentRecord } from "../../auth/services/documentService";
 import {
@@ -302,10 +303,11 @@ export default function RestaurantsPage() {
                   {restaurant.cuisineType} · {restaurant.prepTimeMin} min · {restaurant.deliveryFee.toFixed(2)} €
                 </p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-3 shrink-0">
                 <Link href={`/dashboard/restaurants/menu?restaurantId=${restaurant.id}`}
-                  className="rounded-xl bg-orange-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-orange-700 transition">
-                  🍽️ Menu
+                  title="Gérer le menu"
+                  className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-orange-50 hover:text-orange-600 border border-slate-100 transition">
+                  🍽️
                 </Link>
                 <button type="button" onClick={() => {
                   setEditingProfileId(restaurant.id);
@@ -314,18 +316,16 @@ export default function RestaurantsPage() {
                     cuisineType: restaurant.cuisineType, prepTimeMin: restaurant.prepTimeMin,
                     deliveryFee: restaurant.deliveryFee,
                   });
-                }} className="text-xs text-orange-600 font-semibold hover:underline">
-                  Modifier
+                }} title="Modifier le profil"
+                   className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-orange-50 hover:text-orange-600 border border-slate-100 transition">
+                  ⚙️
                 </button>
-                <button type="button" onClick={() => handleToggleStatus(restaurant)}
+                <div className="h-6 w-px bg-slate-100 mx-1" />
+                <Toggle 
+                  enabled={restaurant.isActive} 
+                  onChange={() => handleToggleStatus(restaurant)}
                   disabled={togglingId === restaurant.id}
-                  className={`rounded-xl px-4 py-2 text-xs font-bold transition disabled:opacity-50 ${
-                    restaurant.isActive
-                      ? "bg-slate-100 text-slate-700 hover:bg-red-50 hover:text-red-600"
-                      : "bg-emerald-600 text-white hover:bg-emerald-700"
-                  }`}>
-                  {togglingId === restaurant.id ? "…" : restaurant.isActive ? "Désactiver" : "Activer"}
-                </button>
+                />
               </div>
             </div>
 

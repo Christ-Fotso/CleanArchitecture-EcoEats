@@ -64,8 +64,21 @@ export class Order {
       Money.fromEuros(DRIVER_PRICE_PER_KM_EUROS),
       Money.fromEuros(DRIVER_BASE_FEE_EUROS),
     );
-    this.serviceFee  = this.itemsTotal.multiply(SERVICE_FEE_RATE);
-    this.total       = this.itemsTotal.add(this.deliveryFee).add(this.serviceFee);
+    
+    // Frais de service : 10% (min 0.50€, max 3.00€)
+    const rawServiceFee = this.itemsTotal.multiply(0.10);
+    const minFee = Money.fromEuros(0.50);
+    const maxFee = Money.fromEuros(3.00);
+    
+    if (rawServiceFee.lessThan(minFee)) {
+      this.serviceFee = minFee;
+    } else if (rawServiceFee.greaterThan(maxFee)) {
+      this.serviceFee = maxFee;
+    } else {
+      this.serviceFee = rawServiceFee;
+    }
+
+    this.total = this.itemsTotal.add(this.deliveryFee).add(this.serviceFee);
 
     // Estimation dynamique : Préparation + Trajet (vitesse moyenne 12km/h soit 5min/km)
     const prepTime = props.prepTimeMin ?? 20;

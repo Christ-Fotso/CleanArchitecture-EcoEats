@@ -21,6 +21,7 @@ export type CreateOrderInput = {
   /** Valeurs calculées par l'entité Order du domaine (non recalculées en infra). */
   orderId?:          string;
   computedSubtotal?: number;
+  computedServiceFee?: number;
   computedTotal?:    number;
 };
 
@@ -29,6 +30,7 @@ export type OrderSummary = {
   status:       string;
   subtotal:     number;
   deliveryFee:  number;
+  serviceFee:   number;
   tipAmount:    number;
   total:        number;
   estimatedAt:  string;
@@ -56,6 +58,7 @@ export type OrderDetail = {
   deliveryCity:      string;
   subtotal:          number;
   deliveryFee:       number;
+  serviceFee:        number;
   total:             number;
   estimatedAt:       string;
   createdAt:         string;
@@ -67,6 +70,7 @@ export type OrderBasicInfo = {
   restaurantOwnerId: string;
   clientUserId:      string;
   status:            string;
+  deliveryFee:       number;
 };
 
 export type RestaurantOrderItem = {
@@ -89,6 +93,7 @@ export type RestaurantOrder = {
   deliveryCity:   string;
   subtotal:       number;
   deliveryFee:    number;
+  serviceFee:     number;
   total:          number;
   createdAt:      string;
   estimatedAt:    string;
@@ -100,6 +105,7 @@ export type InvoiceData = {
   items:          Array<{ name: string; quantity: number; unitPrice: number }>;
   subtotal:       number;
   deliveryFee:    number;
+  serviceFee:     number;
   tipAmount:      number;
   total:          number;
   createdAt:      string;

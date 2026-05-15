@@ -32,12 +32,15 @@ export class CompleteDeliveryUseCase {
     if (order) {
       const invoiceData  = await this.orderRepository.findByIdForInvoice(orderId, order.clientUserId);
       const tipAmount    = invoiceData?.tipAmount ?? 0;
-      const distanceFee  = DRIVER_PRICE_PER_KM_EUROS * 0; // distance inconnue ici → base uniquement
+      
+      const totalFee     = order.deliveryFee;
+      const baseAmount   = DRIVER_BASE_FEE_EUROS;
+      const distanceFee  = Math.max(0, totalFee - baseAmount);
 
       await this.driverRepository.creditEarning({
         driverId:    driver.id,
         orderId,
-        baseAmount:  DRIVER_BASE_FEE_EUROS,
+        baseAmount,
         distanceFee,
         tipAmount,
       });

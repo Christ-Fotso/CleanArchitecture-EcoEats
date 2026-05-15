@@ -21,6 +21,7 @@ import {
   getItemPhotoUrl,
   AVAILABILITY_LABELS,
 } from "../../../auth/services/menu/menuService";
+import { Toggle } from "../../components/Toggle";
 import type { MenuCategoryDto, MenuItemDto, MenuAvailability } from "../../../auth/services/menu/menuService";
 
 const AVAILABILITY_OPTIONS: MenuAvailability[] = ["always", "lunch", "dinner", "weekend"];
@@ -225,7 +226,7 @@ function MenuManagementContent() {
           <select value={newCategoryAvail} onChange={(e) => setNewCategoryAvail(e.target.value as MenuAvailability)}
             className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400">
             {AVAILABILITY_OPTIONS.map((option) => (
-              <option key={option} value={option}>{AVAILABILITY_LABELS[option]}</option>
+              <option key={option} value={option}>{AVAILABILITY_LABELS[option] || option}</option>
             ))}
           </select>
           <div className="flex gap-3">
@@ -243,15 +244,21 @@ function MenuManagementContent() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-slate-900">{category.name}</span>
               <span className="text-xs text-slate-400 bg-white border border-slate-200 rounded-full px-2 py-0.5">
-                {AVAILABILITY_LABELS[category.availability]}
+                {AVAILABILITY_LABELS[category.availability] || "Disponibilité inconnue"}
               </span>
               <span className="text-xs text-slate-400">{category.items.length} plat{category.items.length !== 1 ? "s" : ""}</span>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-3 shrink-0">
               <button type="button" onClick={() => setShowAddItem(category.id)}
-                className="text-xs text-orange-600 font-semibold hover:underline">+ Plat</button>
+                title="Ajouter un plat"
+                className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-600 text-white hover:bg-orange-700 transition">
+                +
+              </button>
               <button type="button" onClick={() => handleDeleteCategory(category.id)}
-                className="text-xs text-red-500 hover:text-red-700 font-medium">Supprimer</button>
+                title="Supprimer la catégorie"
+                className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-red-500 hover:bg-red-50 transition text-sm">
+                🗑️
+              </button>
             </div>
           </div>
 
@@ -359,15 +366,23 @@ function MenuManagementContent() {
                             onBlur={(e) => handleUpdateStock(category.id, item, e.target.value)} />
                         </div>
                       </div>
-                      <div className="flex flex-col gap-1 shrink-0">
-                        <button type="button" onClick={() => handleToggleAvailability(category.id, item)}
-                          className={`rounded-lg px-3 py-1 text-xs font-bold transition ${item.isAvailable ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : "bg-slate-100 text-slate-500 hover:bg-slate-200"}`}>
-                          {item.isAvailable ? "Actif" : "Désactivé"}
-                        </button>
-                        <button type="button" onClick={() => { setEditingItemId(item.id); setEditItemForm({}); }}
-                          className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 transition">Modifier</button>
-                        <button type="button" onClick={() => handleDeleteItem(category.id, item.id)}
-                          className="rounded-lg border border-red-100 px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-50 transition">Supprimer</button>
+                      <div className="flex flex-col items-end gap-3 shrink-0">
+                        <Toggle 
+                          enabled={item.isAvailable} 
+                          onChange={() => handleToggleAvailability(category.id, item)}
+                        />
+                        <div className="flex gap-2">
+                          <button type="button" onClick={() => { setEditingItemId(item.id); setEditItemForm({}); }}
+                            title="Modifier"
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition text-xs">
+                            ✏️
+                          </button>
+                          <button type="button" onClick={() => handleDeleteItem(category.id, item.id)}
+                            title="Supprimer"
+                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition text-xs">
+                            🗑️
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}

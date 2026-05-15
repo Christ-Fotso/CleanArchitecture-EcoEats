@@ -10,8 +10,9 @@ export class PrismaOrderRepository implements IOrderRepository {
     const subtotal    = input.computedSubtotal
       ?? input.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
     const tipAmount   = input.tipAmount ?? 0;
+    const serviceFee  = input.computedServiceFee ?? 0;
     const total       = input.computedTotal
-      ?? subtotal + input.deliveryFee + tipAmount;
+      ?? subtotal + input.deliveryFee + serviceFee + tipAmount;
     const estimatedAt = new Date(Date.now() + ConfigService.ESTIMATED_PREP_TIME * 60 * 1000);
 
     const address = await this.prismaClient.userAddress.create({
@@ -35,6 +36,7 @@ export class PrismaOrderRepository implements IOrderRepository {
         status:           "created",
         subtotal:              subtotal,
         delivery_fee:          input.deliveryFee,
+        service_fee:           serviceFee,
         taxes:                 0,
         tip_amount:            tipAmount,
         total:                 total,
@@ -65,6 +67,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       status:      order.status,
       subtotal:    Number(order.subtotal),
       deliveryFee: Number(order.delivery_fee),
+      serviceFee:  Number(order.service_fee),
       tipAmount:   Number(order.tip_amount),
       total:       Number(order.total),
       estimatedAt: order.estimated_delivery_at.toISOString(),
@@ -106,6 +109,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       deliveryCity:   order.delivery_address?.city   ?? "",
       subtotal:       Number(order.subtotal),
       deliveryFee:    Number(order.delivery_fee),
+      serviceFee:     Number(order.service_fee),
       total:          Number(order.total),
       estimatedAt:    order.estimated_delivery_at.toISOString(),
       createdAt:      order.created_at.toISOString(),
@@ -145,6 +149,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       deliveryCity:   order.delivery_address?.city   ?? "",
       subtotal:       Number(order.subtotal),
       deliveryFee:    Number(order.delivery_fee),
+      serviceFee:     Number(order.service_fee),
       total:          Number(order.total),
       createdAt:      order.created_at.toISOString(),
       estimatedAt:    order.estimated_delivery_at.toISOString(),
@@ -154,7 +159,7 @@ export class PrismaOrderRepository implements IOrderRepository {
   async findById(orderId: string): Promise<OrderBasicInfo | null> {
     const order = await this.prismaClient.order.findUnique({
       where:   { id: orderId },
-      select:  { id: true, restaurant_id: true, user_id: true, status: true,
+      select:  { id: true, restaurant_id: true, user_id: true, status: true, delivery_fee: true,
                  restaurant: { select: { owner_id: true } } },
     });
     if (!order) return null;
@@ -164,6 +169,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       restaurantOwnerId: order.restaurant.owner_id,
       clientUserId:      order.user_id,
       status:            order.status,
+      deliveryFee:       Number(order.delivery_fee),
     };
   }
 
@@ -210,6 +216,7 @@ export class PrismaOrderRepository implements IOrderRepository {
       })),
       subtotal:    Number(order.subtotal),
       deliveryFee: Number(order.delivery_fee),
+      serviceFee:  Number(order.service_fee),
       tipAmount:   Number(order.tip_amount),
       total:       Number(order.total),
       createdAt:   order.created_at.toISOString(),

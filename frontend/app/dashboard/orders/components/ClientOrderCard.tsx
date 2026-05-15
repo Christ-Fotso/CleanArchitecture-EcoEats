@@ -79,6 +79,7 @@ export function ClientOrderCard({ order }: { order: OrderDetail }) {
           <div className="mx-5 mb-4 bg-slate-50 rounded-2xl p-4 space-y-1.5">
             <div className="flex justify-between text-sm"><span className="text-slate-500">Sous-total</span><span className="font-medium">{order.subtotal.toFixed(2)} €</span></div>
             <div className="flex justify-between text-sm"><span className="text-slate-500">Livraison</span><span className="font-medium">{order.deliveryFee === 0 ? "Offerte" : `${order.deliveryFee.toFixed(2)} €`}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-500">Frais de service</span><span className="font-medium">{order.serviceFee.toFixed(2)} €</span></div>
             <div className="flex justify-between pt-2 border-t border-slate-200"><span className="text-sm font-bold text-slate-900">Total</span><span className="text-sm font-black text-orange-600">{order.total.toFixed(2)} €</span></div>
           </div>
           <div className="px-5 pb-5 grid grid-cols-2 gap-3">

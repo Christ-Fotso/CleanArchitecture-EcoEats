@@ -33,6 +33,7 @@ export type CreateOrderResponse = {
   status: string;
   subtotal: number;
   deliveryFee: number;
+  serviceFee: number;
   total: number;
   estimatedAt: string;
 };
@@ -119,6 +120,7 @@ export class CreateOrderUseCase {
       paymentMethodId: paymentMethodId,
       deliveryFee:     order.deliveryFee.toEuros(),
       computedSubtotal: order.itemsTotal.toEuros(),
+      computedServiceFee: order.serviceFee.toEuros(),
       computedTotal:    order.total.toEuros(),
       orderId:          order.id,
       clientLat:       input.clientLat,
@@ -150,6 +152,7 @@ export class CreateOrderUseCase {
       status:      summary.status,
       subtotal:    summary.subtotal,
       deliveryFee: summary.deliveryFee,
+      serviceFee:  summary.serviceFee,
       total:       summary.total,
       estimatedAt: summary.estimatedAt,
     });
