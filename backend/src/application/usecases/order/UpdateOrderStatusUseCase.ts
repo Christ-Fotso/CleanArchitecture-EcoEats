@@ -19,25 +19,20 @@ export class UnauthorizedOrderAccessError extends DomainError {
 
 /** Notifications envoyées au client selon le nouveau statut. */
 const STATUS_NOTIFICATIONS: Partial<Record<OrderStatusValue, { type: string; title: string; message: string }>> = {
-  ACCEPTED: {
+  confirmed: {
     type:    "order_confirmed",
     title:   "Commande acceptée ! 🎉",
     message: "Le restaurant a accepté votre commande et commence la préparation.",
   },
-  READY_FOR_PICKUP: {
+  prepared: {
     type:    "order_prepared",
     title:   "Commande prête ! 🍽️",
     message: "Votre commande est prête, un livreur va la prendre en charge.",
   },
-  REFUSED: {
+  cancelled: {
     type:    "order_cancelled",
-    title:   "Commande refusée ❌",
-    message: "Votre commande a été refusée par le restaurant.",
-  },
-  CANCELLED: {
-    type:    "order_cancelled",
-    title:   "Commande annulée ❌",
-    message: "Votre commande a été annulée.",
+    title:   "Commande refusée / annulée ❌",
+    message: "Votre commande a été refusée ou annulée.",
   },
 };
 
@@ -83,7 +78,7 @@ export class UpdateOrderStatusUseCase {
     await this.orderRepository.updateStatus(orderId, nextStatus);
 
     /* ── Temps de préparation estimé (si le restaurateur accepte la commande) ── */
-    if (nextStatus === "ACCEPTED" && prepTimeMinutes !== undefined && prepTimeMinutes > 0) {
+    if (nextStatus === "confirmed" && prepTimeMinutes !== undefined && prepTimeMinutes > 0) {
       await this.orderRepository.updateEstimatedTime(orderId, prepTimeMinutes);
     }
 

@@ -1,33 +1,27 @@
 import { InvalidOrderTransitionError } from "../errors/OrderErrors.js";
 
 export type OrderStatusValue =
-  | "PENDING"
-  | "PAID"
-  | "ACCEPTED"
-  | "REFUSED"
-  | "PREPARING"
-  | "READY_FOR_PICKUP"
-  | "DELIVERING"
-  | "DELIVERED"
-  | "CANCELLED";
+  | "created"
+  | "confirmed"
+  | "prepared"
+  | "delivering"
+  | "delivered"
+  | "cancelled";
 
 const ALLOWED_TRANSITIONS: Record<OrderStatusValue, OrderStatusValue[]> = {
-  PENDING:          ["PAID", "CANCELLED"],
-  PAID:             ["ACCEPTED", "REFUSED", "CANCELLED"],
-  ACCEPTED:         ["PREPARING"],
-  REFUSED:          [],
-  PREPARING:        ["READY_FOR_PICKUP"],
-  READY_FOR_PICKUP: ["DELIVERING"],
-  DELIVERING:       ["DELIVERED"],
-  DELIVERED:        [],
-  CANCELLED:        [],
+  created:    ["confirmed", "cancelled"],
+  confirmed:  ["prepared", "cancelled"],
+  prepared:   ["delivering"],
+  delivering: ["delivered"],
+  delivered:  [],
+  cancelled:  [],
 };
 
 export class OrderStatus {
   private constructor(readonly value: OrderStatusValue) {}
 
   static initial(): OrderStatus {
-    return new OrderStatus("PENDING");
+    return new OrderStatus("created");
   }
 
   static from(value: OrderStatusValue): OrderStatus {
