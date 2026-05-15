@@ -25,7 +25,8 @@ describe("AcceptDeliveryUseCase (Clean Architecture Tests)", () => {
     // 1. Créer un livreur standard
     const driver = await driverRepo.save({
       id: "d1", userId: "u1", name: "Jean", email: "jean@test.com",
-      isOnline: true, isExpert: false,
+      isOnline: true, isExpert: false, isVerified: true,
+      transportType: "bike",
     });
 
     // 2. Simuler une livraison déjà en cours
@@ -49,7 +50,8 @@ describe("AcceptDeliveryUseCase (Clean Architecture Tests)", () => {
     // 1. Créer un livreur Expert
     await driverRepo.save({
       id: "d-expert", userId: "u-exp", name: "Expert", email: "exp@test.com",
-      isOnline: true, isExpert: true,
+      isOnline: true, isExpert: true, isVerified: true,
+      transportType: "car",
     });
 
     // 2. Livraison 1 (Restaurant A)
@@ -67,7 +69,8 @@ describe("AcceptDeliveryUseCase (Clean Architecture Tests)", () => {
   it("devrait REFUSER une 2ème livraison si le livreur est EXPERT mais que c'est un RESTAURANT DIFFÉRENT", async () => {
     await driverRepo.save({
       id: "d-expert", userId: "u-exp", name: "Expert", email: "exp@test.com",
-      isOnline: true, isExpert: true,
+      isOnline: true, isExpert: true, isVerified: true,
+      transportType: "car",
     });
 
     await orderRepo.save({ id: "o1", restaurantId: "restau-A" } as any);
