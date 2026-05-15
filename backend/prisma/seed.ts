@@ -102,13 +102,13 @@ async function main() {
     const p = await prisma.menuCategory.create({ data: { restaurant_id: resto1.id, name: "Plats",    position: 2, availability: "always" } });
     const d = await prisma.menuCategory.create({ data: { restaurant_id: resto1.id, name: "Desserts", position: 3, availability: "always" } });
     await prisma.menuItem.createMany({ data: [
-      { category_id: e.id, name: "Soupe à l'oignon gratinée", description: "Soupe traditionnelle, croûton et fromage fondu",      price: 8.50,  is_available: true, daily_stock: 50 },
-      { category_id: e.id, name: "Escargots de Bourgogne",    description: "6 escargots au beurre persillé aillé",                price: 12.00, is_available: true, daily_stock: 30 },
-      { category_id: p.id, name: "Bœuf Bourguignon",          description: "Mijoté 3h, servi avec pommes de terre vapeur",        price: 18.50, is_available: true, is_popular: true, daily_stock: 20 },
-      { category_id: p.id, name: "Confit de Canard",          description: "Cuisse confite, pommes sarladaises et salade verte",  price: 19.00, is_available: true, daily_stock: 15 },
-      { category_id: p.id, name: "Croque Monsieur Deluxe",    description: "Pain brioché, jambon de Paris, béchamel maison",      price: 11.00, is_available: true, daily_stock: 40 },
-      { category_id: d.id, name: "Tarte Tatin",               description: "Tarte aux pommes caramélisées, crème fraîche",        price: 7.50,  is_available: true, daily_stock: 20 },
-      { category_id: d.id, name: "Crème Brûlée",              description: "Crème vanillée avec caramel craquant",               price: 6.50,  is_available: true, daily_stock: 25 },
+      { category_id: e.id, name: "Soupe à l'oignon gratinée", description: "Soupe traditionnelle, croûton et fromage fondu",      price: 8.50,  is_available: true, is_popular: false, daily_stock: 50 },
+      { category_id: e.id, name: "Escargots de Bourgogne",    description: "6 escargots au beurre persillé aillé",                price: 12.00, is_available: true, is_popular: false, daily_stock: 30 },
+      { category_id: p.id, name: "Bœuf Bourguignon",          description: "Mijoté 3h, servi avec pommes de terre vapeur",        price: 18.50, is_available: true, is_popular: true,  daily_stock: 20 },
+      { category_id: p.id, name: "Confit de Canard",          description: "Cuisse confite, pommes sarladaises et salade verte",  price: 19.00, is_available: true, is_popular: false, daily_stock: 15 },
+      { category_id: p.id, name: "Croque Monsieur Deluxe",    description: "Pain brioché, jambon de Paris, béchamel maison",      price: 11.00, is_available: true, is_popular: false, daily_stock: 40 },
+      { category_id: d.id, name: "Tarte Tatin",               description: "Tarte aux pommes caramélisées, crème fraîche",        price: 7.50,  is_available: true, is_popular: false, daily_stock: 20 },
+      { category_id: d.id, name: "Crème Brûlée",              description: "Crème vanillée avec caramel craquant",               price: 6.50,  is_available: true, is_popular: false, daily_stock: 25 },
     ]});
   });
   console.log("✅ Le Bistrot Parisien - Montmartre (48.8865, 2.3360)");
@@ -126,12 +126,12 @@ async function main() {
     const c = await prisma.menuCategory.create({ data: { restaurant_id: resto2.id, name: "Plats chauds",   position: 2, availability: "always" } });
     const d = await prisma.menuCategory.create({ data: { restaurant_id: resto2.id, name: "Desserts",       position: 3, availability: "always" } });
     await prisma.menuItem.createMany({ data: [
-      { category_id: s.id, name: "Plateau Sushi 12 pièces",  description: "Saumon, thon, crevette, daurade",          price: 22.00, is_available: true, is_popular: true, daily_stock: 30 },
-      { category_id: s.id, name: "California Rolls (8 pcs)", description: "Avocat, crabe, concombre, sésame",          price: 11.50, is_available: true, daily_stock: 40 },
-      { category_id: s.id, name: "Salmon Maki (6 pcs)",      description: "Saumon frais et riz vinaigré",              price: 9.00,  is_available: true, daily_stock: 50 },
-      { category_id: c.id, name: "Ramen Miso",               description: "Bouillon miso, porc, œuf mollet, nori",    price: 16.00, is_available: true, is_popular: true, daily_stock: 25 },
-      { category_id: c.id, name: "Katsu Curry",              description: "Poulet pané, riz et sauce curry japonaise", price: 17.50, is_available: true, daily_stock: 20 },
-      { category_id: d.id, name: "Mochi Glacé (3 pcs)",      description: "Matcha, fraise, vanille",                  price: 7.00,  is_available: true, daily_stock: 30 },
+      { category_id: s.id, name: "Plateau Sushi 12 pièces",  description: "Saumon, thon, crevette, daurade",          price: 22.00, is_available: true, is_popular: true,  daily_stock: 30 },
+      { category_id: s.id, name: "California Rolls (8 pcs)", description: "Avocat, crabe, concombre, sésame",          price: 11.50, is_available: true, is_popular: false, daily_stock: 40 },
+      { category_id: s.id, name: "Salmon Maki (6 pcs)",      description: "Saumon frais et riz vinaigré",              price: 9.00,  is_available: true, is_popular: false, daily_stock: 50 },
+      { category_id: c.id, name: "Ramen Miso",               description: "Bouillon miso, porc, œuf mollet, nori",    price: 16.00, is_available: true, is_popular: true,  daily_stock: 25 },
+      { category_id: c.id, name: "Katsu Curry",              description: "Poulet pané, riz et sauce curry japonaise", price: 17.50, is_available: true, is_popular: false, daily_stock: 20 },
+      { category_id: d.id, name: "Mochi Glacé (3 pcs)",      description: "Matcha, fraise, vanille",                  price: 7.00,  is_available: true, is_popular: false, daily_stock: 30 },
     ]});
   });
   console.log("✅ Sushi Sakura - Opéra (48.8698, 2.3310)");
@@ -149,13 +149,13 @@ async function main() {
     const g = await prisma.menuCategory.create({ data: { restaurant_id: resto3.id, name: "Grillades", position: 2, availability: "always" } });
     const s = await prisma.menuCategory.create({ data: { restaurant_id: resto3.id, name: "Sandwichs", position: 3, availability: "always" } });
     await prisma.menuItem.createMany({ data: [
-      { category_id: m.id, name: "Houmous maison",    description: "Pois chiches, tahini, citron, huile d'olive",        price: 6.50,  is_available: true, daily_stock: 60 },
-      { category_id: m.id, name: "Assiette Mezze",    description: "Houmous, taboulé, fattoush, labneh, pain pita",      price: 14.00, is_available: true, is_popular: true, daily_stock: 25 },
-      { category_id: m.id, name: "Falafel (6 pcs)",   description: "Falafels aux pois chiches et herbes fraîches",       price: 8.00,  is_available: true, daily_stock: 50 },
-      { category_id: g.id, name: "Chawarma Poulet",   description: "Poulet mariné aux épices, légumes grillés, sauce ail",price: 14.50, is_available: true, is_popular: true, daily_stock: 30 },
-      { category_id: g.id, name: "Kafta Grillée",     description: "3 brochettes de viande hachée aux herbes",           price: 15.00, is_available: true, daily_stock: 25 },
-      { category_id: s.id, name: "Sandwich Falafel",  description: "Pain pita, falafel, crudités, tahini",               price: 8.50,  is_available: true, daily_stock: 40 },
-      { category_id: s.id, name: "Sandwich Chawarma", description: "Pain pita, poulet mariné, tomates, sauce blanche",   price: 10.00, is_available: true, daily_stock: 35 },
+      { category_id: m.id, name: "Houmous maison",    description: "Pois chiches, tahini, citron, huile d'olive",        price: 6.50,  is_available: true, is_popular: false, daily_stock: 60 },
+      { category_id: m.id, name: "Assiette Mezze",    description: "Houmous, taboulé, fattoush, labneh, pain pita",      price: 14.00, is_available: true, is_popular: true,  daily_stock: 25 },
+      { category_id: m.id, name: "Falafel (6 pcs)",   description: "Falafels aux pois chiches et herbes fraîches",       price: 8.00,  is_available: true, is_popular: false, daily_stock: 50 },
+      { category_id: g.id, name: "Chawarma Poulet",   description: "Poulet mariné aux épices, légumes grillés, sauce ail",price: 14.50, is_available: true, is_popular: true,  daily_stock: 30 },
+      { category_id: g.id, name: "Kafta Grillée",     description: "3 brochettes de viande hachée aux herbes",           price: 15.00, is_available: true, is_popular: false, daily_stock: 25 },
+      { category_id: s.id, name: "Sandwich Falafel",  description: "Pain pita, falafel, crudités, tahini",               price: 8.50,  is_available: true, is_popular: false, daily_stock: 40 },
+      { category_id: s.id, name: "Sandwich Chawarma", description: "Pain pita, poulet mariné, tomates, sauce blanche",   price: 10.00, is_available: true, is_popular: false, daily_stock: 35 },
     ]});
   });
   console.log("✅ Chez Mahmoud - Le Marais (48.8623, 2.3601)");
@@ -173,13 +173,13 @@ async function main() {
     const a = await prisma.menuCategory.create({ data: { restaurant_id: resto4.id, name: "Pâtes",     position: 2, availability: "always" } });
     const t = await prisma.menuCategory.create({ data: { restaurant_id: resto4.id, name: "Antipasti", position: 3, availability: "always" } });
     await prisma.menuItem.createMany({ data: [
-      { category_id: p.id, name: "Margherita",          description: "Tomate San Marzano, mozzarella di bufala, basilic",  price: 13.00, is_available: true, daily_stock: 40 },
-      { category_id: p.id, name: "Quatre Fromages",     description: "Mozzarella, gorgonzola, parmesan, chèvre",           price: 15.50, is_available: true, is_popular: true, daily_stock: 35 },
-      { category_id: p.id, name: "Diavola",             description: "Salami piquant, tomate, mozzarella, piment",         price: 14.50, is_available: true, daily_stock: 30 },
-      { category_id: p.id, name: "Pizza Saumon",        description: "Crème fraîche, saumon fumé, câpres, roquette",       price: 16.00, is_available: true, daily_stock: 25 },
-      { category_id: a.id, name: "Spaghetti Carbonara", description: "Guanciale, œuf, pecorino, poivre noir",              price: 14.00, is_available: true, is_popular: true, daily_stock: 30 },
-      { category_id: a.id, name: "Penne Arrabiata",     description: "Tomate, ail, piment, basilic",                       price: 12.00, is_available: true, daily_stock: 35 },
-      { category_id: t.id, name: "Burrata & Tomates",   description: "Burrata crémeuse, tomates cerises, basilic, huile d'olive", price: 11.00, is_available: true, daily_stock: 20 },
+      { category_id: p.id, name: "Margherita",          description: "Tomate San Marzano, mozzarella di bufala, basilic",  price: 13.00, is_available: true, is_popular: false, daily_stock: 40 },
+      { category_id: p.id, name: "Quatre Fromages",     description: "Mozzarella, gorgonzola, parmesan, chèvre",           price: 15.50, is_available: true, is_popular: true,  daily_stock: 35 },
+      { category_id: p.id, name: "Diavola",             description: "Salami piquant, tomate, mozzarella, piment",         price: 14.50, is_available: true, is_popular: false, daily_stock: 30 },
+      { category_id: p.id, name: "Pizza Saumon",        description: "Crème fraîche, saumon fumé, câpres, roquette",       price: 16.00, is_available: true, is_popular: false, daily_stock: 25 },
+      { category_id: a.id, name: "Spaghetti Carbonara", description: "Guanciale, œuf, pecorino, poivre noir",              price: 14.00, is_available: true, is_popular: true,  daily_stock: 30 },
+      { category_id: a.id, name: "Penne Arrabiata",     description: "Tomate, ail, piment, basilic",                       price: 12.00, is_available: true, is_popular: false, daily_stock: 35 },
+      { category_id: t.id, name: "Burrata & Tomates",   description: "Burrata crémeuse, tomates cerises, basilic, huile d'olive", price: 11.00, is_available: true, is_popular: false, daily_stock: 20 },
     ]});
   });
   console.log("✅ La Pizzeria Roma - Mouffetard (48.8428, 2.3507)");
@@ -197,14 +197,14 @@ async function main() {
     const g = await prisma.menuCategory.create({ data: { restaurant_id: resto5.id, name: "Gyozas & Entrées", position: 2, availability: "always" } });
     const b = await prisma.menuCategory.create({ data: { restaurant_id: resto5.id, name: "Boissons",          position: 3, availability: "always" } });
     await prisma.menuItem.createMany({ data: [
-      { category_id: r.id, name: "Tonkotsu Ramen",        description: "Bouillon porc 12h, chashu, œuf mollet, maïs, nori",  price: 17.00, is_available: true, is_popular: true, daily_stock: 30 },
-      { category_id: r.id, name: "Shoyu Ramen",           description: "Bouillon soja, poulet, bambou, champignons shiitake", price: 15.50, is_available: true, daily_stock: 30 },
-      { category_id: r.id, name: "Ramen Végétarien",      description: "Bouillon légumes, tofu, champignons, épinards",       price: 14.00, is_available: true, daily_stock: 25 },
-      { category_id: g.id, name: "Gyozas Porc (6 pcs)",   description: "Raviolis japonais porc et chou, sauce ponzu",        price: 9.50,  is_available: true, is_popular: true, daily_stock: 50 },
-      { category_id: g.id, name: "Gyozas Crevettes (6 pcs)", description: "Raviolis crevettes et gingembre",                 price: 10.50, is_available: true, daily_stock: 40 },
-      { category_id: g.id, name: "Edamame",               description: "Fèves de soja vapeur, fleur de sel",                 price: 5.50,  is_available: true, daily_stock: 60 },
-      { category_id: b.id, name: "Thé Matcha Glacé",      description: "Thé vert matcha premium, sucre de canne",            price: 4.50,  is_available: true, daily_stock: 80 },
-      { category_id: b.id, name: "Ramune",                description: "Limonade japonaise à la bille",                      price: 3.50,  is_available: true, daily_stock: 100 },
+      { category_id: r.id, name: "Tonkotsu Ramen",           description: "Bouillon porc 12h, chashu, œuf mollet, maïs, nori",  price: 17.00, is_available: true, is_popular: true,  daily_stock: 30 },
+      { category_id: r.id, name: "Shoyu Ramen",              description: "Bouillon soja, poulet, bambou, champignons shiitake", price: 15.50, is_available: true, is_popular: false, daily_stock: 30 },
+      { category_id: r.id, name: "Ramen Végétarien",         description: "Bouillon légumes, tofu, champignons, épinards",       price: 14.00, is_available: true, is_popular: false, daily_stock: 25 },
+      { category_id: g.id, name: "Gyozas Porc (6 pcs)",      description: "Raviolis japonais porc et chou, sauce ponzu",        price: 9.50,  is_available: true, is_popular: true,  daily_stock: 50 },
+      { category_id: g.id, name: "Gyozas Crevettes (6 pcs)", description: "Raviolis crevettes et gingembre",                   price: 10.50, is_available: true, is_popular: false, daily_stock: 40 },
+      { category_id: g.id, name: "Edamame",                  description: "Fèves de soja vapeur, fleur de sel",                 price: 5.50,  is_available: true, is_popular: false, daily_stock: 60 },
+      { category_id: b.id, name: "Thé Matcha Glacé",         description: "Thé vert matcha premium, sucre de canne",            price: 4.50,  is_available: true, is_popular: false, daily_stock: 80 },
+      { category_id: b.id, name: "Ramune",                   description: "Limonade japonaise à la bille",                      price: 3.50,  is_available: true, is_popular: false, daily_stock: 100 },
     ]});
   });
   console.log("✅ Tokyo Ramen House - Tour Eiffel (48.8507, 2.3000)");
