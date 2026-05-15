@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../auth/context/AuthContext";
 import { useAuthenticatedAPI } from "../../auth/hooks/useAuthenticatedAPI";
 import { IconScooter, IconBicycle } from "../../components/Icons";
@@ -32,6 +33,7 @@ const TRANSPORT_LABELS: Record<string, string> = {
 export default function DeliveriesPage() {
   const { user, tokens, loading: authLoading } = useAuth();
   const { callWithRefresh } = useAuthenticatedAPI();
+  const router = useRouter();
 
   const [profileMissing,  setProfileMissing]  = useState(false);
   const [transport,       setTransport]       = useState<"bike" | "scooter" | "car">("bike");
@@ -102,8 +104,9 @@ export default function DeliveriesPage() {
         if (profileResult.data.isOnline && !activeResult.data) {
           void loadDeliveries();
         }
-      } else if (!profileResult.ok) {
-        setProfileMissing(true);
+      } else if (profileResult.status === 404 || profileResult.message?.toLowerCase().includes("introuvable")) {
+        router.push("/dashboard/driver/vehicle");
+        return;
       }
 
       /* Livraison active : restaurer l'étape selon le vrai statut en base */
@@ -173,8 +176,8 @@ export default function DeliveriesPage() {
       } else {
         setDeliveries([]);
       }
-    } else if (result.message?.toLowerCase().includes("not found") || result.message?.toLowerCase().includes("introuvable")) {
-      setProfileMissing(true);
+    } else if (result.status === 404 || result.message?.toLowerCase().includes("not found") || result.message?.toLowerCase().includes("introuvable")) {
+      router.push("/dashboard/driver/vehicle");
     } else {
       setPageError(result.message ?? "Erreur lors du changement de statut");
     }
@@ -250,55 +253,7 @@ export default function DeliveriesPage() {
 
   /* ─────────────────────────────────────────────────────────────────────── */
 
-  /* ── Écran de configuration du profil livreur ── */
-  if (profileMissing) {
-    return (
-      <div className="max-w-sm space-y-6 mx-auto">
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-5">
-          <div className="text-center">
-            <div className="flex justify-center text-orange-400"><IconScooter className="h-14 w-14" /></div>
-            <h2 className="text-lg font-black text-slate-900 mt-3">Configurez votre profil livreur</h2>
-            <p className="text-sm text-slate-500 mt-1">Choisissez votre moyen de transport pour commencer à livrer.</p>
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Moyen de transport</p>
-            {(["bike", "scooter", "car"] as const).map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setTransport(type)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition text-left ${
-                  transport === type
-                    ? "border-orange-500 bg-orange-50"
-                    : "border-slate-200 hover:border-slate-300"
-                }`}
-              >
-                <span className="text-2xl">{TRANSPORT_LABELS[type].split(" ")[0]}</span>
-                <span className="text-sm font-semibold text-slate-900">{TRANSPORT_LABELS[type].split(" ")[1]}</span>
-                <div className={`ml-auto w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                  transport === type ? "border-orange-500 bg-orange-500" : "border-slate-300"
-                }`}>
-                  {transport === type && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {pageError && <p className="text-sm text-red-600 font-medium">{pageError}</p>}
-
-          <button
-            type="button"
-            onClick={handleCreateProfile}
-            disabled={creatingProfile}
-            className="w-full bg-orange-600 text-white rounded-2xl py-4 text-sm font-bold hover:bg-orange-700 disabled:opacity-50 transition"
-          >
-            {creatingProfile ? "Création…" : "Créer mon profil livreur"}
-          </button>
-        </div>
-      </div>
-    );
-  }
+  /* ── Plus besoin de l'écran local, on redirige vers /dashboard/driver/vehicle ── */
 
   return (
     <div className="max-w-xl space-y-6 mx-auto">

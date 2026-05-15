@@ -116,13 +116,16 @@ export function createRestaurantRoutes(
     const clientLat = parseFloat(request.query.lat as string);
     const clientLng = parseFloat(request.query.lng as string);
     if (!isNaN(clientLat) && !isNaN(clientLng) && dto.lat && dto.lng) {
-      const dx = clientLat - dto.lat;
-      const dy = (clientLng - dto.lng) * Math.cos((clientLat * Math.PI) / 180);
-      const distanceKm = Math.sqrt(dx * dx + dy * dy) * 111;
-      const rawFee = 1.18 + distanceKm * 0.67 + 0.05;
-      const deliveryFee = Math.min(Math.max(rawFee, 1.5), 9.5);
-      const prepTimeMin = Math.round(restaurant.prepTimeMin + distanceKm * 4.2 + 3);
-      response.json({ ...dto, deliveryFee: Math.round(deliveryFee * 100) / 100, prepTimeMin, distanceKm: Math.round(distanceKm * 10) / 10 });
+      const distanceKm = haversineDistance(clientLat, clientLng, dto.lat, dto.lng);
+      const deliveryFee = calculateDeliveryFee(distanceKm);
+      const prepTimeMin = estimateDeliveryTime(distanceKm, restaurant.prepTimeMin);
+      
+      response.json({ 
+        ...dto, 
+        deliveryFee, 
+        prepTimeMin, 
+        distanceKm: Math.round(distanceKm * 10) / 10 
+      });
       return;
     }
 

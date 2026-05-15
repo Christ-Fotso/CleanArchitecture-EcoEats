@@ -102,8 +102,15 @@ export class PrismaDriverRepository implements IDriverRepository {
   }
 
   async createProfile(input: CreateDriverProfileInput): Promise<DriverProfile> {
-    const driver = await this.prismaClient.driver.create({
-      data: {
+    const driver = await this.prismaClient.driver.upsert({
+      where: { user_id: input.userId },
+      update: {
+        name:           input.name,
+        email:          input.email,
+        phone:          input.phone,
+        transport_type: input.transportType,
+      },
+      create: {
         name:           input.name,
         email:          input.email,
         phone:          input.phone,

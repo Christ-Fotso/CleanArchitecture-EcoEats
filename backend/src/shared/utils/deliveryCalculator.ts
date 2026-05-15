@@ -28,17 +28,14 @@ function toRad(deg: number): number {
  * - Frais de service (estimés) : 0.05 €
  */
 export function calculateDeliveryFee(distanceKm: number): number {
-  const base = 1.18;
-  const perKm = 0.67;
-  const serviceFee = 0.05;
+  const base = 1.50;  // Base fixe
+  const perKm = 0.50; // Prix au km
   
-  // On ajoute un petit facteur de variabilité basé sur la distance pour faire "vrai"
-  const rawFee = base + (distanceKm * perKm) + serviceFee;
+  const rawFee = base + (distanceKm * perKm);
   
-  // On plafonne entre 1.85 et 9.50
-  const finalFee = Math.min(9.50, Math.max(1.85, rawFee));
+  // On plafonne à 45.00€ pour les distances extrêmes (ex: 80km+)
+  const finalFee = Math.min(45.00, Math.max(1.85, rawFee));
   
-  // Retourne 2 décimales (ex: 2.74)
   return Math.round(finalFee * 100) / 100;
 }
 
