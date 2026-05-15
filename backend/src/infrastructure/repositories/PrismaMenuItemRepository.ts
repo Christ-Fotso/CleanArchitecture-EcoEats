@@ -81,6 +81,12 @@ export class PrismaMenuItemRepository implements IMenuItemRepository {
   }
 
   async decrementStock(id: string): Promise<MenuItem> {
+    const item = await this.findById(id);
+    if (!item) throw new Error("Plat introuvable");
+    
+    // Si le stock est illimité (null), on ne fait rien
+    if (item.dailyStock === null) return item;
+
     const record = await this.prismaClient.menuItem.update({
       where: { id },
       data: {
