@@ -22,6 +22,7 @@ export type MenuItemDto = {
   isAvailable: boolean;
   isPopular:   boolean;
   dailyStock:  number | null;
+  allergens:   string[];
   options:     MenuItemOptionDto[];
 };
 

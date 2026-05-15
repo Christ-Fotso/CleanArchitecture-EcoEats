@@ -28,6 +28,7 @@ export class MenuPresenter {
       isAvailable: item.isAvailable,
       isPopular:   item.isPopular,
       dailyStock:  item.dailyStock,
+      allergens:   item.allergens,
       options:     item.options.map((option) => MenuPresenter.toOptionDto(option)),
     };
   }

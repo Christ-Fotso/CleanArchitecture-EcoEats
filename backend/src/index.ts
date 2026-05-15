@@ -65,20 +65,23 @@ setInterval(async () => {
 }, 24 * 60 * 60 * 1000);
 
 const startServer = async () => {
-  if (env.httpFramework === "fastify") {
-    const fastifyApp = createFastifyApp({
-      userRepo:                    userRepository,
-      refreshTokenRepo:            refreshTokenRepository,
-      tokenService:                jwtTokenService,
-      passwordHasher:              bcryptPasswordHasher,
-      getPendingDocumentsUseCase:  admin.getPendingDocumentsUseCase,
-      updateDocumentStatusUseCase: admin.updateDocumentStatusUseCase,
-      corsOrigin:                  env.corsOrigins,
-    });
-    await fastifyApp.listen({ port: Number(env.port), host: "0.0.0.0" });
-    console.log(`[fastify]: http://localhost:${env.port}`);
-    return;
-  }
+  // Démarrer Fastify en parallèle sur le port 3002 pour valider le cahier des charges "2 frameworks"
+  const fastifyApp = createFastifyApp({
+    userRepo:                    userRepository,
+    refreshTokenRepo:            refreshTokenRepository,
+    tokenService:                jwtTokenService,
+    passwordHasher:              bcryptPasswordHasher,
+    getPendingDocumentsUseCase:  admin.getPendingDocumentsUseCase,
+    updateDocumentStatusUseCase: admin.updateDocumentStatusUseCase,
+    getRestaurantMenuUseCase:    menu.getRestaurantMenuUseCase,
+    restaurantRepository:        restaurant.restaurantRepository,
+    corsOrigin:                  env.corsOrigins,
+  });
+  fastifyApp.listen({ port: 3002, host: "0.0.0.0" }).then(() => {
+    console.log(`[fastify]: http://localhost:3002`);
+  }).catch((err) => {
+    console.error("[fastify-error]:", err);
+  });
 
   const expressApp = createExpressApp({
     /* ── Auth ── */

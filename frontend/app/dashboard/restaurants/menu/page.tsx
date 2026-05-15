@@ -40,7 +40,7 @@ function MenuManagementContent() {
   const [newCategoryAvail, setNewCategoryAvail] = useState<MenuAvailability>("always");
 
   const [showAddItem, setShowAddItem] = useState<string | null>(null);
-  const [newItem, setNewItem] = useState({ name: "", description: "", price: "", dailyStock: "" });
+  const [newItem, setNewItem] = useState({ name: "", description: "", price: "", dailyStock: "", allergens: "" });
 
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editItemForm,  setEditItemForm]  = useState<Partial<MenuItemDto>>({});
@@ -91,13 +91,14 @@ function MenuManagementContent() {
       price:       parseFloat(newItem.price),
       isAvailable: true,
       isPopular:   false,
+      allergens:   newItem.allergens.split(",").map((a) => a.trim()).filter(Boolean),
       ...(newItem.dailyStock !== "" && { dailyStock: parseInt(newItem.dailyStock) }),
     }, token);
     if (result.ok && result.data) {
       setCategories((previous) => previous.map((cat) =>
         cat.id === categoryId ? { ...cat, items: [...cat.items, result.data!] } : cat,
       ));
-      setNewItem({ name: "", description: "", price: "", dailyStock: "" });
+      setNewItem({ name: "", description: "", price: "", dailyStock: "", allergens: "" });
       setShowAddItem(null);
     } else {
       setActionError(result.message ?? "Erreur");
@@ -266,6 +267,8 @@ function MenuManagementContent() {
                   placeholder="Prix (€) *" value={newItem.price} onChange={(e) => setNewItem((f) => ({ ...f, price: e.target.value }))} />
                 <input type="number" min="0" className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
                   placeholder="Stock jour (vide = illimité)" value={newItem.dailyStock} onChange={(e) => setNewItem((f) => ({ ...f, dailyStock: e.target.value }))} />
+                <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 col-span-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  placeholder="Allergènes (séparés par des virgules)" value={newItem.allergens} onChange={(e) => setNewItem((f) => ({ ...f, allergens: e.target.value }))} />
               </div>
               <div className="flex gap-3">
                 <button type="button" onClick={() => handleAddItem(category.id)}
@@ -290,6 +293,9 @@ function MenuManagementContent() {
                         <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 col-span-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
                           placeholder="Description" value={editItemForm.description ?? item.description ?? ""}
                           onChange={(e) => setEditItemForm((f) => ({ ...f, description: e.target.value }))} />
+                        <input className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 col-span-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                          placeholder="Allergènes (séparés par des virgules)" value={(editItemForm.allergens ?? item.allergens).join(", ")}
+                          onChange={(e) => setEditItemForm((f) => ({ ...f, allergens: e.target.value.split(",").map((a) => a.trim()).filter(Boolean) }))} />
                         <input type="number" min="0" step="0.5" className="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-400"
                           value={editItemForm.price ?? item.price} onChange={(e) => setEditItemForm((f) => ({ ...f, price: parseFloat(e.target.value) }))} />
                       </div>
@@ -320,6 +326,9 @@ function MenuManagementContent() {
                           {item.isPopular && <span className="text-xs bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded-full">⭐ Populaire</span>}
                           {!item.isAvailable && <span className="text-xs bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded-full">Indisponible</span>}
                         </div>
+                        {item.allergens.length > 0 && (
+                          <p className="text-xs text-amber-600 mt-1 font-medium">⚠️ Allergènes : {item.allergens.join(", ")}</p>
+                        )}
                         {item.description && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{item.description}</p>}
                         {item.options.length > 0 && (
                           <div className="mt-2 space-y-1">

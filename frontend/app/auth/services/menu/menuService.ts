@@ -16,6 +16,7 @@ export type MenuItemDto = {
   isAvailable: boolean;
   isPopular:   boolean;
   dailyStock:  number | null;
+  allergens:   string[];
   options:     MenuItemOptionDto[];
 };
 
@@ -74,7 +75,7 @@ export const reorderCategories = (restaurantId: string, orderedIds: string[], ac
 
 export const createMenuItem = (
   restaurantId: string,
-  input: { categoryId: string; name: string; description?: string; price: number; isAvailable: boolean; isPopular: boolean; dailyStock?: number },
+  input: { categoryId: string; name: string; description?: string; price: number; isAvailable: boolean; isPopular: boolean; dailyStock?: number; allergens?: string[] },
   accessToken: string,
 ) => callAuthJson<MenuItemDto>(`/restaurants/${restaurantId}/menu/items`, accessToken, {
   method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
@@ -83,7 +84,7 @@ export const createMenuItem = (
 export const updateMenuItem = (
   restaurantId: string,
   itemId: string,
-  input: { name?: string; description?: string; price?: number; isAvailable?: boolean; isPopular?: boolean; dailyStock?: number | null },
+  input: { name?: string; description?: string; price?: number; isAvailable?: boolean; isPopular?: boolean; dailyStock?: number | null; allergens?: string[] },
   accessToken: string,
 ) => callAuthJson<MenuItemDto>(`/restaurants/${restaurantId}/menu/items/${itemId}`, accessToken, {
   method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),

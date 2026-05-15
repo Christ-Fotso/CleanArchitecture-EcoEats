@@ -122,6 +122,7 @@ model MenuItem {
     is_available Boolean
     is_popular   Boolean
     daily_stock  Int?
+    allergens    String[]         @default([])
     category     MenuCategory     @relation(fields: [category_id], references: [id], name: "CategoryItems", onDelete: Cascade)
     options      MenuItemOption[] @relation("ItemOptions")
     order_items  OrderItem[]      @relation("MenuItemOrderItems")

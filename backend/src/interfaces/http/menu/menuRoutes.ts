@@ -56,6 +56,7 @@ const createItemSchema = z.object({
   isAvailable: z.boolean().default(true),
   isPopular:   z.boolean().default(false),
   dailyStock:  z.number().int().min(0).optional(),
+  allergens:   z.array(z.string()).optional(),
 });
 const updateItemSchema = z.object({
   name:        z.string().min(1).optional(),
@@ -64,6 +65,7 @@ const updateItemSchema = z.object({
   isAvailable: z.boolean().optional(),
   isPopular:   z.boolean().optional(),
   dailyStock:  z.number().int().min(0).nullable().optional(),
+  allergens:   z.array(z.string()).optional(),
 });
 
 const createOptionSchema = z.object({

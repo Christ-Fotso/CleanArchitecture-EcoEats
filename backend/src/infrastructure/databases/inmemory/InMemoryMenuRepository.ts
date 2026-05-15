@@ -98,6 +98,7 @@ export class InMemoryMenuItemRepository
       isAvailable: input.isAvailable,
       isPopular:   input.isPopular,
       dailyStock:  input.dailyStock ?? null,
+      allergens:   input.allergens ?? [],
       options:     [],
     };
     return this.save(item);

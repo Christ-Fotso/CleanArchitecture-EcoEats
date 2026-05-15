@@ -43,6 +43,7 @@ export class PrismaMenuItemRepository implements IMenuItemRepository {
         is_available: input.isAvailable,
         is_popular:   input.isPopular,
         daily_stock:  input.dailyStock ?? null,
+        allergens:    input.allergens ?? [],
       },
       include: { options: { include: { values: true } } },
     });
@@ -59,6 +60,7 @@ export class PrismaMenuItemRepository implements IMenuItemRepository {
         ...(input.isAvailable !== undefined && { is_available: input.isAvailable }),
         ...(input.isPopular   !== undefined && { is_popular:   input.isPopular }),
         ...(input.dailyStock  !== undefined && { daily_stock:  input.dailyStock }),
+        ...(input.allergens   !== undefined && { allergens:    input.allergens }),
       },
       include: { options: { include: { values: true } } },
     });
@@ -132,7 +134,7 @@ export class PrismaMenuItemRepository implements IMenuItemRepository {
   private toMenuItem(record: {
     id: string; category_id: string; name: string; description: string | null;
     photo_url: string | null; price: unknown; is_available: boolean; is_popular: boolean;
-    daily_stock: number | null;
+    daily_stock: number | null; allergens: string[];
     options: Array<{
       id: string; item_id: string; name: string; type: string; is_required: boolean;
       values: Array<{ id: string; option_id: string; label: string; extra_price: unknown }>;
@@ -148,6 +150,7 @@ export class PrismaMenuItemRepository implements IMenuItemRepository {
       isAvailable: record.is_available,
       isPopular:   record.is_popular,
       dailyStock:  record.daily_stock,
+      allergens:   record.allergens,
       options:     (record.options ?? []).map((option) => ({
         id:         option.id,
         itemId:     option.item_id,
