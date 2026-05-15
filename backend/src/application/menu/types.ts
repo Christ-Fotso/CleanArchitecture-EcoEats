@@ -27,6 +27,7 @@ export type MenuItem = {
   isAvailable: boolean;
   isPopular:   boolean;
   dailyStock:  number | null;
+  allergens:   string[];
   options:     MenuItemOption[];
 };
 
@@ -61,6 +62,7 @@ export type CreateMenuItemInput = {
   isAvailable: boolean;
   isPopular:   boolean;
   dailyStock?: number;
+  allergens?:  string[];
 };
 
 export type UpdateMenuItemInput = {
@@ -70,6 +72,7 @@ export type UpdateMenuItemInput = {
   isAvailable?: boolean;
   isPopular?:   boolean;
   dailyStock?:  number | null;
+  allergens?:   string[];
 };
 
 export type CreateMenuItemOptionInput = {

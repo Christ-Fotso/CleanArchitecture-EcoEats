@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PROTECTED = ["/dashboard", "/auth/documents"];
+const PROTECTED = ["/dashboard"];
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isLoggedIn = request.cookies.has("isLoggedIn");
 
-  if (PROTECTED.some((protectedPath) => pathname.startsWith(protectedPath)) && !isLoggedIn) {
+  // Si on est sur une route protégée et qu'on n'est pas connecté
+  if (PROTECTED.some((path) => pathname.startsWith(path)) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
@@ -15,5 +16,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/documents"],
+  matcher: ["/dashboard/:path*"],
 };

@@ -45,8 +45,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const storedUser   = localStorage.getItem(USER_KEY);
     startTransition(() => {
       if (storedTokens && storedUser) {
-        setTokens(JSON.parse(storedTokens) as AuthTokens);
-        setUser(normalizeUser(JSON.parse(storedUser) as Parameters<typeof normalizeUser>[0]));
+        try {
+          const parsedTokens = JSON.parse(storedTokens) as AuthTokens;
+          const parsedUser   = JSON.parse(storedUser);
+          setTokens(parsedTokens);
+          setUser(normalizeUser(parsedUser));
+
+          // Restaurer le cookie si absent (pour le middleware)
+          if (!document.cookie.includes("isLoggedIn=1")) {
+            document.cookie = `isLoggedIn=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+          }
+        } catch (err) {
+          console.error("Erreur restauration auth:", err);
+          clear();
+        }
       }
       setLoading(false);
     });
@@ -58,9 +70,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { ok: false, message: result.message ?? "Identifiants incorrects" };
     }
     const tokens: AuthTokens = { accessToken: result.data.tokens.accessToken };
-    persist(tokens, result.data.user);
+    const normalized = normalizeUser(result.data.user);
+    persist(tokens, normalized);
     setTokens(tokens);
-    setUser(result.data.user);
+    setUser(normalized);
     return { ok: true };
   };
 
@@ -70,9 +83,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return { ok: false, message: result.message ?? "Inscription échouée" };
     }
     const tokens: AuthTokens = { accessToken: result.data.tokens.accessToken };
-    persist(tokens, result.data.user);
+    const normalized = normalizeUser(result.data.user);
+    persist(tokens, normalized);
     setTokens(tokens);
-    setUser(result.data.user);
+    setUser(normalized);
     return { ok: true };
   };
 
