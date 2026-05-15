@@ -4,13 +4,17 @@ import type { IPaymentMethodRepository } from "../../application/ports/IPaymentM
 import type { SavedPaymentMethod, CreatePaymentMethodInput, PaymentMethodType } from "../../application/payment/types.js";
 
 const PAYMENT_METHOD_SELECT = {
-  id:                      true,
-  user_id:                 true,
-  stripe_token:            true,
-  type:                    true,
-  label:                   true,
-  is_default:              true,
-  created_at:              true,
+  id:           true,
+  user_id:      true,
+  stripe_token: true,
+  type:         true,
+  label:        true,
+  last4:        true,
+  brand:        true,
+  expiry_month: true,
+  expiry_year:  true,
+  is_default:   true,
+  created_at:   true,
 } as const;
 
 export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
@@ -50,6 +54,10 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
         stripe_token: input.stripePaymentMethodId,
         type:         this.toPrismaPaymentType(input.type),
         label:        `${input.brand} •••• ${input.last4}`,
+        last4:        input.last4,
+        brand:        input.brand,
+        expiry_month: input.expiryMonth,
+        expiry_year:  input.expiryYear,
         is_default:   input.isDefault,
       },
       select: PAYMENT_METHOD_SELECT,
@@ -82,19 +90,22 @@ export class PrismaPaymentMethodRepository implements IPaymentMethodRepository {
     stripe_token: string | null;
     type: string;
     label: string;
+    last4: string;
+    brand: string;
+    expiry_month: number;
+    expiry_year:  number;
     is_default: boolean;
     created_at: Date;
   }): SavedPaymentMethod {
-    const parts = record.label.split(" •••• ");
     return {
       id:                    record.id,
       userId:                record.user_id,
       stripePaymentMethodId: record.stripe_token ?? "",
       type:                  this.toDomainPaymentMethodType(record.type),
-      brand:                 parts[0] ?? "unknown",
-      last4:                 parts[1] ?? "0000",
-      expiryMonth:           0,
-      expiryYear:            0,
+      brand:                 record.brand,
+      last4:                 record.last4,
+      expiryMonth:           record.expiry_month,
+      expiryYear:            record.expiry_year,
       isDefault:             record.is_default,
       createdAt:             record.created_at,
     };

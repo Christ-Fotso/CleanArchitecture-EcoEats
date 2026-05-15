@@ -564,6 +564,10 @@ model PaymentMethod {
     type         PaymentType
     stripe_token String?
     label        String
+    last4        String      @default("0000")
+    brand        String      @default("unknown")
+    expiry_month Int         @default(0)
+    expiry_year  Int         @default(0)
     is_default   Boolean
     created_at   DateTime    @default(now())
     user         User        @relation(fields: [user_id], references: [id])
