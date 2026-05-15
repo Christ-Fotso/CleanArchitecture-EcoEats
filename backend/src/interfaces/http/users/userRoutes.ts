@@ -42,11 +42,70 @@ const updatePreferencesSchema = z.object({
   cuisines:  z.array(cuisineSchema),
 });
 
+import type { PrismaClient } from "@prisma/client";
+
 export function createUserRoutes(
   userRepository: IUserRepository,
+  prisma:         PrismaClient,
   requireAuth: RequestHandler,
 ): Router {
   const router = Router();
+
+  /* ── Adresses ── */
+  router.get("/me/addresses", requireAuth, async (request: Request, response: Response) => {
+    try {
+      const addresses = await prisma.userAddress.findMany({
+        where: { user_id: request.user!.id },
+        orderBy: { is_default: "desc" },
+      });
+      response.json(addresses.map(a => ({
+        id:         a.id,
+        label:      a.label,
+        street:     a.street,
+        city:       a.city,
+        lat:        a.lat,
+        lng:        a.lng,
+        is_default: a.is_default,
+      })));
+    } catch (err) {
+      console.error("Error fetching addresses:", err);
+      response.status(500).json({ message: "Erreur lors de la récupération des adresses" });
+    }
+  });
+
+  router.post("/me/addresses", requireAuth, async (request: Request, response: Response) => {
+    const schema = z.object({
+      label:  z.string().min(1),
+      street: z.string().min(1),
+      city:   z.string().min(1),
+      lat:    z.number(),
+      lng:    z.number(),
+      is_default: z.boolean().default(false),
+    });
+
+    const parsed = schema.safeParse(request.body);
+    if (!parsed.success) return response.status(400).json({ message: "Données invalides" });
+
+    try {
+      if (parsed.data.is_default) {
+        await prisma.userAddress.updateMany({
+          where: { user_id: request.user!.id },
+          data: { is_default: false },
+        });
+      }
+
+      const address = await prisma.userAddress.create({
+        data: {
+          user_id: request.user!.id,
+          ...parsed.data,
+        },
+      });
+      response.status(201).json(address);
+    } catch (err) {
+      console.error("Error creating address:", err);
+      response.status(500).json({ message: "Erreur lors de la création de l'adresse" });
+    }
+  });
 
   router.patch("/me", requireAuth, async (request: Request, response: Response) => {
     const parsedProfileUpdate = updateProfileSchema.safeParse(request.body);

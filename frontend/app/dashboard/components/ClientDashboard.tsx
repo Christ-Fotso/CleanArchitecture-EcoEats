@@ -23,48 +23,42 @@ export function ClientDashboard({ userName }: { userName: string }) {
   useEffect(() => {
     if (!accessToken) return;
 
-    const initDashboard = async () => {
-      try {
-        // Charger les adresses d'abord
-        const addrRes = await getUserAddresses(accessToken);
-        let currentCoords: { lat: number; lng: number } | undefined;
+    // Charger les restaurants IMMÉDIATEMENT (sans attendre le GPS)
+    getActiveRestaurants().then(res => {
+      if (res.ok) setRestaurants(res.data ?? []);
+      setLoading(false);
+    });
 
+    const loadUserData = async () => {
+      try {
+        // Charger les adresses en arrière-plan
+        const addrRes = await getUserAddresses(accessToken);
         if (addrRes.ok && addrRes.data && addrRes.data.length > 0) {
           setAddresses(addrRes.data);
           const def = addrRes.data.find(a => a.is_default) || addrRes.data[0];
           setSelectedAddress(def);
-          if (def.lat && def.lng) {
-            currentCoords = { lat: def.lat, lng: def.lng };
-          }
-        }
-
-        // Si pas d'adresse, tenter le GPS
-        if (!currentCoords && navigator.geolocation) {
-          setIsUsingGPS(true);
-          const pos = await new Promise<GeolocationPosition>((res, rej) => 
-            navigator.geolocation.getCurrentPosition(res, rej, { timeout: 3000 })
-          ).catch(() => null);
           
-          if (pos) {
-            currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          // Si on trouve une adresse, on RE-calcule les restaurants avec ces coordonnées
+          if (def.lat && def.lng) {
+            const restRes = await getActiveRestaurants({ lat: def.lat, lng: def.lng });
+            if (restRes.ok) setRestaurants(restRes.data ?? []);
           }
+        } else if (navigator.geolocation) {
+          // Sinon tenter GPS en arrière-plan
+          navigator.geolocation.getCurrentPosition(async (pos) => {
+            setIsUsingGPS(true);
+            const restRes = await getActiveRestaurants({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+            if (restRes.ok) setRestaurants(restRes.data ?? []);
+          }, undefined, { timeout: 5000 });
         }
-
-        // Charger les restaurants avec les coordonnées trouvées
-        const restRes = await getActiveRestaurants(currentCoords);
-        if (restRes.ok) setRestaurants(restRes.data ?? []);
       } catch (err) {
-        console.error("Dashboard init error", err);
-        // Fallback sans coordonnées
-        const restRes = await getActiveRestaurants();
-        if (restRes.ok) setRestaurants(restRes.data ?? []);
-      } finally {
-        setLoading(false);
+        console.error("Dashboard data error", err);
       }
     };
 
-    initDashboard();
+    loadUserData();
   }, [accessToken]);
+
 
   // 2. Recalculer quand l'adresse change
   const handleAddressChange = async (addrId: string) => {

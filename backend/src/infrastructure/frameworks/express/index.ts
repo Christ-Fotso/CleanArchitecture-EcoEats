@@ -118,9 +118,11 @@ export type ExpressFrameworkDependencies = {
   getDriverWalletUseCase:            GetDriverWalletUseCase;
   notificationGateway:               INotificationGateway;
   metricsService:                    MetricsService;
+  prisma:                            PrismaClient;
   requireAuthentication: RequestHandler;
   corsOrigin: string | string[];
 };
+
 
 export const createExpressApp = (dependencies: ExpressFrameworkDependencies): Express => {
   const app = express();
@@ -163,7 +165,7 @@ export const createExpressApp = (dependencies: ExpressFrameworkDependencies): Ex
     ),
   );
   app.use("/documents", createDocumentRoutes(dependencies.documentRepository, dependencies.requireAuthentication, dependencies.notificationGateway));
-  app.use("/users",     createUserRoutes(dependencies.userRepository, dependencies.requireAuthentication));
+  app.use("/users",     createUserRoutes(dependencies.userRepository, dependencies.prisma, dependencies.requireAuthentication));
   app.use(
     "/orders",
     createOrderRoutes(
