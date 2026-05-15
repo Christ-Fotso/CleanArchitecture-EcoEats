@@ -6,6 +6,8 @@ export type RestaurantResponseDto = {
   description:  string | null;
   logoUrl:      string | null;
   address:      string;
+  lat:          number;
+  lng:          number;
   cuisineType:  string;
   prepTimeMin:  number;
   deliveryFee:  number;

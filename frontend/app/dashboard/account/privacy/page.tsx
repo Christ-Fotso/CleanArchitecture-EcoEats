@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
@@ -7,34 +7,34 @@ export default function AccountPrivacyPage() {
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
-      {/* Utilisation des donnÃ©es */}
+      {/* Utilisation des données */}
       <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
         <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-          Vos donnÃ©es personnelles
+          Vos données personnelles
         </h3>
         <div className="space-y-3 text-sm text-slate-600">
           <p>
-            EcoEats collecte uniquement les donnÃ©es nÃ©cessaires au bon fonctionnement du service :
-            nom, adresse e-mail, numÃ©ro de tÃ©lÃ©phone et historique de commandes.
+            EcoEats collecte uniquement les données nécessaires au bon fonctionnement du service :
+            nom, adresse e-mail, numéro de téléphone et historique de commandes.
           </p>
           <p>
-            Vos donnÃ©es ne sont jamais revendues Ã  des tiers. Elles sont utilisÃ©es exclusivement pour
-            gÃ©rer votre compte, traiter vos commandes et amÃ©liorer notre service.
+            Vos données ne sont jamais revendues à des tiers. Elles sont utilisées exclusivement pour
+            gérer votre compte, traiter vos commandes et améliorer notre service.
           </p>
           <p>
-            ConformÃ©ment au RGPD, vous pouvez demander l&apos;accÃ¨s, la rectification ou la suppression
-            de vos donnÃ©es Ã  tout moment.
+            Conformément au RGPD, vous pouvez demander l&apos;accès, la rectification ou la suppression
+            de vos données à tout moment.
           </p>
         </div>
       </section>
 
-      {/* TÃ©lÃ©charger les donnÃ©es */}
+      {/* Télécharger les données */}
       <section className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
         <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-          TÃ©lÃ©charger mes donnÃ©es
+          Télécharger mes données
         </h3>
         <p className="text-sm text-slate-500 mb-4">
-          Exportez une copie de toutes les donnÃ©es associÃ©es Ã  votre compte au format JSON.
+          Exportez une copie de toutes les données associées à votre compte au format JSON.
         </p>
         <button
           type="button"
@@ -50,8 +50,8 @@ export default function AccountPrivacyPage() {
           Supprimer mon compte
         </h3>
         <p className="text-sm text-slate-500 mb-4">
-          La suppression est dÃ©finitive. Toutes vos donnÃ©es seront effacÃ©es et cette action est
-          irrÃ©versible.
+          La suppression est définitive. Toutes vos données seront effacées et cette action est
+          irréversible.
         </p>
 
         {!confirm ? (
@@ -65,14 +65,14 @@ export default function AccountPrivacyPage() {
         ) : (
           <div className="space-y-3">
             <p className="text-sm font-semibold text-red-600">
-              ÃŠtes-vous sÃ»r(e) ? Cette action est irrÃ©versible.
+              Êtes-vous sûr(e) ? Cette action est irréversible.
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition"
               >
-                Oui, supprimer dÃ©finitivement
+                Oui, supprimer définitivement
               </button>
               <button
                 type="button"
@@ -88,4 +88,3 @@ export default function AccountPrivacyPage() {
     </div>
   );
 }
-

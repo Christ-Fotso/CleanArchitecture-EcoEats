@@ -9,6 +9,8 @@ export class RestaurantPresenter {
       description:  restaurant.description,
       logoUrl:      restaurant.logoUrl,
       address:      restaurant.address,
+      lat:          restaurant.lat,
+      lng:          restaurant.lng,
       cuisineType:  restaurant.cuisineType,
       prepTimeMin:  restaurant.prepTimeMin,
       deliveryFee:  restaurant.deliveryFee,
