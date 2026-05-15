@@ -336,11 +336,12 @@ model Review {
     user_id           String
     restaurant_id     String
     driver_id         String?
-    restaurant_rating Int
-    driver_rating     Int?
-    comment           String?
-    photo_url         String?
-    created_at        DateTime   @default(now())
+    restaurant_rating  Int
+    driver_rating      Int?
+    restaurant_comment String?
+    driver_comment     String?
+    photo_url          String?
+    created_at         DateTime   @default(now())
     order             Order      @relation("OrderReviews", fields: [order_id], references: [id])
     user              User       @relation("UserReviews", fields: [user_id], references: [id])
     restaurant        Restaurant @relation("RestaurantReviews", fields: [restaurant_id], references: [id])

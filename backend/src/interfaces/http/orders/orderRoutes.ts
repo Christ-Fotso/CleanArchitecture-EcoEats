@@ -28,9 +28,10 @@ export function createOrderRoutes(
   router.post("/:orderId/review", requireAuth, async (request: Request, response: Response) => {
     const { orderId } = request.params;
     const parsed = z.object({
-      restaurantRating: z.number().min(1).max(5),
-      driverRating:    z.number().min(1).max(5).optional(),
-      comment:         z.string().optional(),
+      restaurantRating:  z.number().min(1).max(5),
+      driverRating:      z.number().min(1).max(5).optional(),
+      restaurantComment: z.string().optional(),
+      driverComment:     z.string().optional(),
     }).safeParse(request.body);
 
     if (!parsed.success) {
@@ -40,10 +41,11 @@ export function createOrderRoutes(
 
     const result = await createOrderReviewUseCase.execute({
       orderId,
-      userId:           request.user!.id,
-      restaurantRating: parsed.data.restaurantRating,
-      driverRating:     parsed.data.driverRating,
-      comment:          parsed.data.comment,
+      userId:            request.user!.id,
+      restaurantRating:  parsed.data.restaurantRating,
+      driverRating:      parsed.data.driverRating,
+      restaurantComment: parsed.data.restaurantComment,
+      driverComment:     parsed.data.driverComment,
     });
 
     if (!result.ok) {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../../auth/context/AuthContext";
 import { useNotifications } from "../../../auth/context/NotificationContext";
+import { useAuthenticatedAPI } from "../../../auth/hooks/useAuthenticatedAPI";
 import { getMyDocuments, uploadDocument } from "../../../auth/services/documentService";
 import { getStoredAccessToken } from "../../../auth/services/tokenHelper";
 import type { DocumentRecord, DocumentType } from "../../../auth/services/documentService";
@@ -47,6 +48,7 @@ function StatusBadge({ status }: { status: DocumentRecord["status"] | "missing" 
 
 export default function DocumentsProfilePage() {
   const { user, tokens } = useAuth();
+  const { callWithRefresh } = useAuthenticatedAPI();
   const { history } = useNotifications();
 
   const [documents,   setDocuments]   = useState<DocumentRecord[]>([]);
@@ -56,15 +58,15 @@ export default function DocumentsProfilePage() {
 
   const inputRefs = useRef<Partial<Record<DocumentType, HTMLInputElement | null>>>({});
 
-  const loadDocuments = async (accessToken: string) => {
-    const result = await getMyDocuments(accessToken);
+  const loadDocuments = async () => {
+    const result = await callWithRefresh((token) => getMyDocuments(token));
     setDocuments(result.data ?? []);
     setLoading(false);
   };
 
   useEffect(() => {
     if (!tokens?.accessToken) return;
-    const timer = setTimeout(() => { void loadDocuments(tokens.accessToken); }, 0);
+    const timer = setTimeout(() => { void loadDocuments(); }, 0);
     return () => clearTimeout(timer);
   }, [tokens]);
 
@@ -76,7 +78,7 @@ export default function DocumentsProfilePage() {
 
     const token = tokens?.accessToken ?? getStoredAccessToken();
     if (!token) return;
-    const timer = setTimeout(() => { void loadDocuments(token); }, 0);
+    const timer = setTimeout(() => { void loadDocuments(); }, 0);
     return () => clearTimeout(timer);
   }, [history]);
 
@@ -86,7 +88,7 @@ export default function DocumentsProfilePage() {
     setUploadingType(type);
     setUploadErrors((previous) => ({ ...previous, [type]: undefined }));
 
-    const result = await uploadDocument(type, file, tokens.accessToken);
+    const result = await callWithRefresh((token) => uploadDocument(type, file, token));
 
     if (result.ok && result.data) {
       setDocuments((previous) => {

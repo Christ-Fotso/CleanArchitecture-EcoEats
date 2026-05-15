@@ -11,25 +11,39 @@ import { STATUS } from "../constants";
 import { OrderTimeline } from "./OrderTimeline";
 
 export function ClientOrderCard({ order }: { order: OrderDetail }) {
-  const { accessToken } = useAuth();
+  const { tokens } = useAuth();
   const [open, setOpen] = useState(false);
   const [ratingLoading, setRatingLoading] = useState(false);
   const [submittedReview, setSubmittedReview] = useState(order.hasReview);
   
   // Rating states
-  const [restaurantRating, setRestaurantRating] = useState(5);
-  const [driverRating,     setDriverRating]     = useState(5);
-  const [comment,          setComment]          = useState("");
+  const [restaurantRating,  setRestaurantRating]  = useState(0);
+  const [driverRating,      setDriverRating]      = useState(0);
+  const [restaurantComment, setRestaurantComment] = useState("");
+  const [driverComment,     setDriverComment]     = useState("");
+  const [hoverRestaurant,   setHoverRestaurant]   = useState(0);
+  const [hoverDriver,       setHoverDriver]       = useState(0);
 
   const st      = STATUS[order.status] ?? { label: order.status, color: "bg-slate-100 text-slate-600" };
   const date    = new Date(order.createdAt);
   const logoUrl = order.restaurantLogoUrl ? buildImageUrl(order.restaurantLogoUrl) : null;
 
   const handleRate = async () => {
-    if (!accessToken) return;
+    if (!tokens?.accessToken) return;
+    if (restaurantRating === 0 || (order.hasDriver && driverRating === 0)) {
+      alert("Veuillez sélectionner une note pour continuer.");
+      return;
+    }
     setRatingLoading(true);
     try {
-      await rateOrder(order.id, restaurantRating, order.hasDriver ? driverRating : undefined, comment, accessToken);
+      await rateOrder(
+        order.id,
+        restaurantRating,
+        order.hasDriver ? driverRating : undefined,
+        restaurantComment || undefined,
+        driverComment || undefined,
+        tokens.accessToken
+      );
       setSubmittedReview(true);
     } catch (error) {
       console.error("Erreur notation:", error);
@@ -39,15 +53,49 @@ export function ClientOrderCard({ order }: { order: OrderDetail }) {
     }
   };
 
-  const StarRating = ({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) => (
-    <div className="flex flex-col gap-1">
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((s) => (
-          <button key={s} type="button" onClick={() => onChange(s)} className="text-xl transition hover:scale-125 focus:outline-none">
-            {s <= value ? "⭐" : "☆"}
-          </button>
-        ))}
+  const StarRating = ({
+    value,
+    onChange,
+    hover,
+    onHover,
+    label,
+    icon = "🍴"
+  }: {
+    value: number;
+    onChange: (v: number) => void;
+    hover: number;
+    onHover: (v: number) => void;
+    label: string;
+    icon?: string;
+  }) => (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <span className="text-lg">{icon}</span>
+        <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider">{label}</p>
+      </div>
+      <div className="flex gap-1.5" onMouseLeave={() => onHover(0)}>
+        {[1, 2, 3, 4, 5].map((s) => {
+          const active = s <= (hover || value);
+          const isSelected = s <= value;
+          return (
+            <button
+              key={s}
+              type="button"
+              onClick={() => onChange(s)}
+              onMouseEnter={() => onHover(s)}
+              className="group relative focus:outline-none transition-transform active:scale-90"
+            >
+              <span className={`text-2xl transition-all duration-200 ${
+                active ? "text-orange-500 scale-110 drop-shadow-[0_0_8px_rgba(249,115,22,0.4)]" : "text-slate-200 grayscale"
+              }`}>
+                {isSelected || active ? "★" : "☆"}
+              </span>
+              {isSelected && !hover && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full animate-ping" />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -101,19 +149,45 @@ export function ClientOrderCard({ order }: { order: OrderDetail }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-white/50 p-4 rounded-2xl">
-                <StarRating label="Le repas (Restaurant)" value={restaurantRating} onChange={setRestaurantRating} />
-                {order.hasDriver && (
-                  <StarRating label="La livraison (Livreur)" value={driverRating} onChange={setDriverRating} />
-                )}
-              </div>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white/60 p-6 rounded-3xl border border-white shadow-sm">
+                  <div className="space-y-4">
+                    <StarRating
+                      label="Le repas (Restaurant)"
+                      value={restaurantRating}
+                      onChange={setRestaurantRating}
+                      hover={hoverRestaurant}
+                      onHover={setHoverRestaurant}
+                      icon="👨‍🍳"
+                    />
+                    <textarea
+                      value={restaurantComment}
+                      onChange={(e) => setRestaurantComment(e.target.value)}
+                      placeholder="Comment était le repas ?"
+                      className="w-full rounded-2xl border-slate-200 bg-white/80 p-4 text-xs text-slate-900 placeholder:text-slate-300 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition min-h-[80px] shadow-sm outline-none"
+                    />
+                  </div>
 
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Un commentaire ? (facultatif)"
-                className="w-full rounded-2xl border-slate-200 bg-white p-4 text-sm text-slate-900 placeholder:text-slate-300 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition min-h-[100px] shadow-sm"
-              />
+                  {order.hasDriver && (
+                    <div className="space-y-4">
+                      <StarRating
+                        label="La livraison (Livreur)"
+                        value={driverRating}
+                        onChange={setDriverRating}
+                        hover={hoverDriver}
+                        onHover={setHoverDriver}
+                        icon="🛵"
+                      />
+                      <textarea
+                        value={driverComment}
+                        onChange={(e) => setDriverComment(e.target.value)}
+                        placeholder="Comment était la livraison ?"
+                        className="w-full rounded-2xl border-slate-200 bg-white/80 p-4 text-xs text-slate-900 placeholder:text-slate-300 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition min-h-[80px] shadow-sm outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
 
               <button
                 type="button"

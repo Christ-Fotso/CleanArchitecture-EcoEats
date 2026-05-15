@@ -5,11 +5,12 @@ import type { IReviewRepository } from "../../ports/IReviewRepository.js";
 import type { IOrderRepository } from "../../ports/IOrderRepository.js";
 
 export type CreateOrderReviewInput = {
-  orderId:          string;
-  userId:           string;
-  restaurantRating: number;
-  driverRating?:    number;
-  comment?:         string;
+  orderId:           string;
+  userId:            string;
+  restaurantRating:  number;
+  driverRating?:     number;
+  restaurantComment?: string;
+  driverComment?:     string;
 };
 
 export class OrderNotDeliveredError extends Error {
@@ -43,13 +44,14 @@ export class CreateOrderReviewUseCase
     // Vérifier si un avis existe déjà (on peut le faire via le repo ou une erreur d'unicité Prisma)
     try {
       await this.reviewRepository.create({
-        orderId:          input.orderId,
-        userId:           input.userId,
-        restaurantId:     order.restaurantId,
-        driverId:         order.driverId as string | undefined, 
-        restaurantRating: input.restaurantRating,
-        driverRating:     input.driverRating,
-        comment:           input.comment,
+        orderId:           input.orderId,
+        userId:            input.userId,
+        restaurantId:      order.restaurantId,
+        driverId:          order.driverId as string | undefined, 
+        restaurantRating:  input.restaurantRating,
+        driverRating:      input.driverRating,
+        restaurantComment: input.restaurantComment,
+        driverComment:     input.driverComment,
       });
 
       // Mettre à jour les moyennes de manière asynchrone (pas besoin d'attendre pour répondre au client)

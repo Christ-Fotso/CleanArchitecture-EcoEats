@@ -14,6 +14,7 @@ export type User = {
 
 export type AuthTokens = {
   accessToken: string;
+  refreshToken: string;
 };
 
 export type ApiResult<T> = {

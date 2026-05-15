@@ -58,3 +58,46 @@ Le projet suit les principes de la **Clean Architecture** :
 - **Carte Interactive** : Visualisation en temps réel via MapLibre.
 - **Workflow Temps Réel** : Notifications via Socket.io pour le suivi des commandes.
 - **Dashboard Restaurateur** : Gestion complète du menu avec Toggle modernisé.
+
+## 🛠️ Fonctionnalités & Cas d'Utilisation (Use Cases)
+
+Le projet implémente les fonctionnalités suivantes, structurées selon les principes de la Clean Architecture :
+
+### 🔐 Authentification & Utilisateurs
+- **Inscription multi-rôles** : Création de comptes Client, Restaurateur ou Livreur.
+- **Connexion sécurisée** : Authentification par email/mot de passe avec jetons JWT.
+- **Gestion de session** : Système de Refresh Token pour maintenir la connexion en toute sécurité.
+- **Profil Utilisateur** : Consultation et mise à jour des informations personnelles.
+
+### 🛒 Expérience Client
+- **Navigation & Menus** : Consultation des menus interactifs des restaurants.
+- **Passage de Commande** : Tunnel d'achat complet avec calcul des frais en temps réel.
+- **Paiement Sécurisé** : Gestion des méthodes de paiement (Stripe).
+- **Suivi en temps réel** : Historique et statut des commandes en cours.
+- **Facturation** : Génération et téléchargement de factures au format JSON/PDF.
+- **Double Notation** : Système de feedback interactif pour noter séparément le restaurant et le livreur.
+
+### 🍳 Gestion Restaurateur
+- **Administration du Restaurant** : Création et édition du profil, gestion des horaires d'ouverture.
+- **Gestion du Menu** : 
+    - CRUD complet des catégories et articles.
+    - Gestion dynamique des stocks et de la disponibilité.
+    - **Import/Export CSV** : Outils pour gérer massivement les cartes de menu.
+- **Pilotage des Commandes** : Réception, confirmation et mise à jour du statut de préparation.
+- **Statistiques** : Visibilité sur les commandes traitées.
+
+### 🛵 Espace Livreur
+- **Gestion de Profil** : Création de profil spécifique avec type de transport.
+- **Statut Online/Offline** : Gestion de la disponibilité pour les courses.
+- **Dispatching** : Visualisation et acceptation des livraisons disponibles à proximité.
+- **Cycle de Livraison** : Prise en charge au restaurant et validation de la remise au client.
+- **Portefeuille (Wallet)** : Suivi détaillé des gains accumulés par livraison.
+
+### 📂 Système Documentaire & Modération
+- **Vérification d'Identité** : Upload de documents officiels (KBIS, CNI, Permis) pour les restaurateurs et livreurs.
+- **Interface d'Approbation** : Système permettant de valider ou rejeter les pièces justificatives.
+- **Contrôle d'Accès** : Restriction des fonctionnalités tant que les documents ne sont pas validés.
+
+### 🛡️ Administration & Monitoring
+- **Dashboard Admin** : Statistiques globales de la plateforme.
+- **Audit Logs** : Suivi des événements du domaine.

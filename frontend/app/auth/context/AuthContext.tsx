@@ -15,6 +15,7 @@ type AuthContextValue = {
   login:      (email: string, password: string) => Promise<AuthResult>;
   register:   (input: RegisterInput) => Promise<AuthResult>;
   logout:     () => void;
+  refresh:    () => Promise<boolean>;
   updateUser: (updated: User) => void;
 };
 
@@ -69,10 +70,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!result.ok || !result.data) {
       return { ok: false, message: result.message ?? "Identifiants incorrects" };
     }
-    const tokens: AuthTokens = { accessToken: result.data.tokens.accessToken };
+    const newTokens: AuthTokens = {
+      accessToken:  result.data.tokens.accessToken,
+      refreshToken: result.data.tokens.refreshToken,
+    };
     const normalized = normalizeUser(result.data.user);
-    persist(tokens, normalized);
-    setTokens(tokens);
+    persist(newTokens, normalized);
+    setTokens(newTokens);
     setUser(normalized);
     return { ok: true };
   };
@@ -82,12 +86,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (!result.ok || !result.data) {
       return { ok: false, message: result.message ?? "Inscription échouée" };
     }
-    const tokens: AuthTokens = { accessToken: result.data.tokens.accessToken };
+    const newTokens: AuthTokens = {
+      accessToken:  result.data.tokens.accessToken,
+      refreshToken: result.data.tokens.refreshToken,
+    };
     const normalized = normalizeUser(result.data.user);
-    persist(tokens, normalized);
-    setTokens(tokens);
+    persist(newTokens, normalized);
+    setTokens(newTokens);
     setUser(normalized);
     return { ok: true };
+  };
+
+  const refresh = async (): Promise<boolean> => {
+    if (!tokens?.refreshToken) return false;
+
+    try {
+      const { refreshService } = await import("../services/refreshService");
+      const result = await refreshService(tokens.refreshToken);
+
+      if (result.ok && result.data) {
+        const updatedTokens: AuthTokens = {
+          accessToken:  result.data.accessToken,
+          refreshToken: result.data.refreshToken,
+        };
+        setTokens(updatedTokens);
+        if (user) persist(updatedTokens, user);
+        return true;
+      }
+      // Si le refresh échoue (ex: refresh token expiré en DB), on déconnecte
+      logout();
+      return false;
+    } catch (err) {
+      console.error("Erreur refresh token:", err);
+      logout();
+      return false;
+    }
   };
 
   const logout = () => {
@@ -102,7 +135,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, tokens, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, tokens, loading, login, register, logout, refresh, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

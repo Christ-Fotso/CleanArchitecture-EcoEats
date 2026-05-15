@@ -11,9 +11,10 @@ export class PrismaReviewRepository implements IReviewRepository {
         user_id:           input.userId,
         restaurant_id:     input.restaurantId,
         driver_id:         input.driverId,
-        restaurant_rating: input.restaurantRating,
-        driver_rating:     input.driverRating,
-        comment:           input.comment,
+        restaurant_rating:  input.restaurantRating,
+        driver_rating:      input.driverRating,
+        restaurant_comment: input.restaurantComment,
+        driver_comment:     input.driverComment,
       },
     });
   }

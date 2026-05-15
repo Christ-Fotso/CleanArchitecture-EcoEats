@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
+import { useAuthenticatedAPI } from "../hooks/useAuthenticatedAPI";
 import { uploadDocument, getMyDocuments } from "../services/documentService";
 import { getStoredAccessToken } from "../services/tokenHelper";
 import type { DocumentType } from "../services/documentService";
@@ -38,6 +39,7 @@ type UploadStatus = "idle" | "uploading" | "done" | "error";
 
 export default function DocumentsPage() {
   const { user, tokens } = useAuth();
+  const { callWithRefresh } = useAuthenticatedAPI();
   const router = useRouter();
 
   const requiredDocs = user ? (DOCS_BY_ROLE[user.role] ?? []) : [];
@@ -50,7 +52,7 @@ export default function DocumentsPage() {
 
   useEffect(() => {
     if (!tokens?.accessToken) return;
-    getMyDocuments(tokens.accessToken).then(({ data }) => {
+    callWithRefresh((token) => getMyDocuments(token)).then(({ data }) => {
       if (!data || !data.length) return;
       setStatuses((previousStatuses) => {
         const updatedStatuses = { ...previousStatuses };
@@ -73,7 +75,7 @@ export default function DocumentsPage() {
     setStatuses((previousStatuses) => ({ ...previousStatuses, [type]: "uploading" }));
     setErrors((previousErrors) => ({ ...previousErrors, [type]: undefined }));
 
-    const uploadResult = await uploadDocument(type, file, tokens.accessToken);
+    const uploadResult = await callWithRefresh((token) => uploadDocument(type, file, token));
 
     if (uploadResult.ok) {
       setStatuses((previousStatuses) => ({ ...previousStatuses, [type]: "done" }));

@@ -3,9 +3,10 @@ export type CreateReviewInput = {
   userId:           string;
   restaurantId:     string;
   driverId?:        string;
-  restaurantRating: number;
-  driverRating?:    number;
-  comment?:         string;
+  restaurantRating:  number;
+  driverRating?:     number;
+  restaurantComment?: string;
+  driverComment?:     string;
 };
 
 export interface IReviewRepository {
