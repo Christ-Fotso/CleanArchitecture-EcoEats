@@ -7,7 +7,7 @@ Node.js + Next.js application with PostgreSQL.
 Backend: Node.js, TypeScript, Express, Prisma  
 Frontend: Next.js 16, React 19, Tailwind  
 Database: PostgreSQL  
-CI/CD: GitHub Actions, Docker
+CI/CD: GitHub Actions, Docker 
 
 ### .env (a la racine du projet)
 
